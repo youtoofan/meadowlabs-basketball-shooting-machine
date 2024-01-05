@@ -30,7 +30,7 @@ namespace DisplayTest
 
             _distanceSensor.DistanceUpdated += (s, e) => _ballShooterMachine.UpdateDistanceToObject(e.New);
             _rotaryEncoder.Rotated += (s, e) => _ballShooterMachine.HandleRotationDirection(e.New);
-            _rotaryEncoder.Clicked += (s, e) => _ballShooterMachine.HandleButtonClicked();
+            _rotaryEncoder.PressStarted += (s, e) => _ballShooterMachine.HandleButtonClicked();
 
             _distanceSensor.StartUpdating(BallShooterMachine.SENSOR_DISTANCE_READ_FREQUENCY);
             _ballShooterMachine.Start();
