@@ -15,6 +15,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
+            this.BallShooterMachine.Graphics.ShowState("No ball");
             this.BallShooterMachine.Led.ShowNoBall();
         }
 

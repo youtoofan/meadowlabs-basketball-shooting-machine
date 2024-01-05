@@ -22,6 +22,7 @@ namespace DisplayTest.Domain.StateMachine
         {
             _cancellationTokenSource = new CancellationTokenSource();
 
+            this.BallShooterMachine.Graphics.ShowState("Launching");
             this.BallShooterMachine.Led.ShowLaunching();
             this.StartCountDownSequenceAsync(_cancellationTokenSource.Token).SafeFireAndForget();
         }
@@ -72,13 +73,15 @@ namespace DisplayTest.Domain.StateMachine
                 this.BallShooterMachine.Graphics.ShowBoom();
                 this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
                 this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
-                this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+                
 
                 Resolver.Log.Error("Launch successfull!");
 
             }, cancellationToken);
 
             await task;
+            await Task.Delay(TimeSpan.FromSeconds(3));
+            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
         }
     }
 }

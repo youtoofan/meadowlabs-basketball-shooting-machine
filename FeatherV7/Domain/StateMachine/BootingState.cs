@@ -17,6 +17,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
+            this.BallShooterMachine.Graphics.ShowState("Booting");
             BallShooterMachine.Led.ShowBooting();
             BallShooterMachine.Graphics.Init();
 

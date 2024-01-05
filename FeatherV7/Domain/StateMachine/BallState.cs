@@ -17,6 +17,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
+            this.BallShooterMachine.Graphics.ShowState("Ball");
             this.BallShooterMachine.Led.ShowBall();
             this.BallShooterMachine.Speaker.PlayBuzzAsync();
         }

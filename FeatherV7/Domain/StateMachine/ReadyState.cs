@@ -19,6 +19,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
+            this.BallShooterMachine.Graphics.ShowState("Ready");
             this.BallShooterMachine.Led.ShowReady();
             this.BallShooterMachine.Graphics.ShowCurrentTimeScreen();
         }

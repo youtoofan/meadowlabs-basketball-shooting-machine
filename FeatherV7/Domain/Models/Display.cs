@@ -8,6 +8,7 @@ namespace DisplayTest.Domain.Models
     internal interface IShooterDisplay
     {
         void Init();
+        void ShowState(string state);
         void ShowCurrentTimeScreen();
         void ShowBoom();
         void ShowCancel();
@@ -61,7 +62,7 @@ namespace DisplayTest.Domain.Models
             this.DrawLine(0, 230, 239, 230, Color.Black);
 
             this.CurrentFont = new Font12x20();
-            this.DrawText(5, 130, "SHOOTING MACHINE V1", Color.White);
+            this.DrawText(0, 100, "SHOOTING MACHINE V1", Color.Black, alignmentH: HorizontalAlignment.Center);
 
             this.Show();
             
@@ -178,6 +179,21 @@ namespace DisplayTest.Domain.Models
             _timer.Enabled = true;
         }
 
-        
+        public void ShowState(string state)
+        {
+            if (string.IsNullOrEmpty(state))
+                return;
+
+            this.DrawRectangle(
+                       x: 0, y: 130,
+                       width: 500,
+                       height: 30,
+                       color: colors[^1],
+                       filled: true);
+
+            this.DrawText(20, 130, $"--> {state.ToUpper()} <--", Color.White, alignmentH: HorizontalAlignment.Center);
+
+            this.Show();
+        }
     }
 }
