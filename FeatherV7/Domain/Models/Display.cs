@@ -62,7 +62,7 @@ namespace DisplayTest.Domain.Models
             this.DrawLine(0, 230, 239, 230, Color.Black);
 
             this.CurrentFont = new Font12x20();
-            this.DrawText(0, 100, "SHOOTING MACHINE V1", Color.Black, alignmentH: HorizontalAlignment.Center);
+            this.DrawText(5, 70, "SHOOTING MACHINE V1", Color.Black);
 
             this.Show();
             
@@ -90,7 +90,6 @@ namespace DisplayTest.Domain.Models
                 scaleFactor: ScaleFactor.X2);
 
             this.Show();
-
         }
 
         public void ShowCountDownSequenceScreen(int second)
@@ -191,7 +190,7 @@ namespace DisplayTest.Domain.Models
                        color: colors[^1],
                        filled: true);
 
-            this.DrawText(20, 130, $"--> {state.ToUpper()} <--", Color.White, alignmentH: HorizontalAlignment.Center);
+            this.DrawText(20, 130, $"--> {state.ToUpper()} <--", Color.White);
 
             this.Show();
         }
