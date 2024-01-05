@@ -8,6 +8,7 @@ using Meadow.Hardware;
 using DisplayTest.Domain.Models;
 using Led = DisplayTest.Domain.Models.Led;
 using Meadow.Peripherals.Sensors.Rotary;
+using Meadow.Logging;
 
 namespace DisplayTest
 {
@@ -40,6 +41,10 @@ namespace DisplayTest
 
         public override Task Initialize()
         {
+            var cloudLogger = new CloudLogger();
+            Resolver.Log.AddProvider(cloudLogger);
+            Resolver.Services.Add(cloudLogger);
+
             Resolver.Log.Info("Initialize...");
 
             var i2cBus = Device.CreateI2cBus(I2cBusSpeed.FastPlus);
