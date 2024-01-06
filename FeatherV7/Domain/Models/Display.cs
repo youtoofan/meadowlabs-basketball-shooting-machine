@@ -1,20 +1,11 @@
-﻿using Meadow.Foundation;
+﻿using FeatherV7.Domain.Interfaces;
+using Meadow.Foundation;
 using Meadow.Foundation.Graphics;
 using System;
 using Timer = System.Timers.Timer;
 
 namespace DisplayTest.Domain.Models
 {
-    internal interface IShooterDisplay
-    {
-        void Init();
-        void ShowState(string state);
-        void ShowCurrentTimeScreen();
-        void ShowBoom();
-        void ShowCancel();
-        void ShowCountDownSequenceScreen(int second);
-        void ShowRotatorScreen(TimeSpan duration);
-    }
 
     internal class Display : MicroGraphics, IShooterDisplay
     {

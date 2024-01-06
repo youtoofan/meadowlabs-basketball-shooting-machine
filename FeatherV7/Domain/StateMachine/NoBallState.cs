@@ -1,7 +1,8 @@
 ﻿using DisplayTest.Domain.Models;
 using Meadow;
-using Meadow.Units;
+using UnitsNet;
 using System;
+using CommonFeather;
 
 namespace DisplayTest.Domain.StateMachine
 {
@@ -26,7 +27,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void UpdateDistanceToObject(Length distance)
         {
-            if (distance <= Length.Zero || distance > BallShooterMachine.MINIMUM_SENSOR_DISTANCE)
+            if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
                 return;
 
             this.BallShooterMachine.SetState(this.BallShooterMachine.BallState);

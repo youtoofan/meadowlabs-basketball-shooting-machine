@@ -9,6 +9,9 @@ using DisplayTest.Domain.Models;
 using Led = DisplayTest.Domain.Models.Led;
 using Meadow.Peripherals.Sensors.Rotary;
 using Meadow.Logging;
+using FeatherV7.Domain.Models;
+using CommonFeather;
+using UnitsNet;
 
 namespace DisplayTest
 {
@@ -21,19 +24,33 @@ namespace DisplayTest
         private Speaker _speaker;
         private Trigger _relay;
         private RotaryEncoderWithButton _rotaryEncoder;
+        private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
 
         public override Task Run()
         {
             Resolver.Log.Info("Run...");
 
-            _ballShooterMachine = new BallShooterMachine(_graphics, _speaker, _relay, _onboardLed);
+            _ballShooterMachine = new BallShooterMachine(_graphics, _speaker, _relay, _onboardLed, _bluetoothHandler);
 
-            _distanceSensor.DistanceUpdated += (s, e) => _ballShooterMachine.UpdateDistanceToObject(e.New);
-            _rotaryEncoder.Rotated += (s, e) => _ballShooterMachine.HandleRotationDirection(e.New);
-            _rotaryEncoder.PressStarted += (s, e) => _ballShooterMachine.HandleButtonClicked();
+            _distanceSensor.DistanceUpdated += (s, e) =>
+            {
+                _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(e.New.Centimeters));
+            };
+            _rotaryEncoder.Rotated += (s, e) =>
+            {
+                _ballShooterMachine.HandleRotationDirection(e.New);
+            };
+            _rotaryEncoder.PressStarted += (s, e) =>
+            {
+                _ballShooterMachine.HandleButtonClicked();
+            };
+            _rotaryEncoder.PressEnded += (s, e) =>
+            {
+                _ballShooterMachine.HandleButtonReleased();
+            };
 
-            _distanceSensor.StartUpdating(BallShooterMachine.SENSOR_DISTANCE_READ_FREQUENCY);
+            _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
             _ballShooterMachine.Start();
 
             return Task.CompletedTask;
@@ -67,6 +84,9 @@ namespace DisplayTest
 
             _graphics = new Display(st7789);
             _distanceSensor = new Vl53l0x(i2cBus, (byte)Vl53l0x.Addresses.Default);
+
+            _bluetoothHandler = new BluetoothHandler(Device, _onboardLed);
+            _bluetoothHandler.Initialize();
 
             return base.Initialize();
         }

@@ -1,10 +1,11 @@
 ﻿using AsyncAwaitBestPractices;
 using DisplayTest.Domain.Models;
 using Meadow;
-using Meadow.Units;
+using UnitsNet;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CommonFeather;
 
 namespace DisplayTest.Domain.StateMachine
 {
@@ -34,7 +35,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void UpdateDistanceToObject(Length distance)
         {
-            if (distance <= Length.Zero || distance > BallShooterMachine.MINIMUM_SENSOR_DISTANCE)
+            if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
             {
                 _cancellationTokenSource.Cancel();
                 return;

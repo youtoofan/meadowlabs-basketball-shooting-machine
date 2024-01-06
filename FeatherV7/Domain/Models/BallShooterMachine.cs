@@ -1,18 +1,15 @@
 ﻿using DisplayTest.Domain.StateMachine;
+using FeatherV7.Domain.Interfaces;
+using FeatherV7.Domain.Models;
 using Meadow;
 using Meadow.Peripherals;
-using Meadow.Units;
 using System;
+using UnitsNet;
 
 namespace DisplayTest.Domain.Models
 {
     internal sealed class BallShooterMachine
     {
-        public static readonly Length MINIMUM_SENSOR_DISTANCE = new Length(10, Length.UnitType.Centimeters);
-        public static readonly int MINIMUM_SENSOR_DISTANCE_COUNTS = 5;
-        public static readonly int MINIMUM_COUNTDOWN_SECONDS = 1;
-        public static readonly TimeSpan SENSOR_DISTANCE_READ_FREQUENCY = TimeSpan.FromMilliseconds(500);
-
         public readonly State BootingState;
         public readonly State LaunchingState;
         public readonly State NoBallState;
@@ -23,16 +20,20 @@ namespace DisplayTest.Domain.Models
         public readonly IShooterSpeaker Speaker;
         public readonly IShooterTrigger Trigger;
         public readonly IShooterLed Led;
+        public readonly IBluetoothHandler bluetoothHandler;
 
         public int CountDownValueInSeconds = 0;
         private State _currentState;
 
-        public BallShooterMachine(IShooterDisplay graphics, IShooterSpeaker speaker, IShooterTrigger trigger, IShooterLed led)
+        public BallShooterMachine(IShooterDisplay graphics, IShooterSpeaker speaker, IShooterTrigger trigger, IShooterLed led, IBluetoothHandler bluetoothHandler)
         {
             this.Graphics = graphics;
             this.Speaker = speaker;
             this.Trigger = trigger;
             this.Led = led;
+            this.bluetoothHandler = bluetoothHandler;
+            this.bluetoothHandler.ButtonClicked += (s, e) => { Resolver.Log.Info("Button event received."); };
+            this.bluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
 
             this.BootingState = new BootingState(this);
             this.LaunchingState = new LaunchingState(this);
@@ -67,6 +68,7 @@ namespace DisplayTest.Domain.Models
             }
 
             _currentState.SetLaunchDelay(TimeSpan.FromSeconds(CountDownValueInSeconds));
+            bluetoothHandler.UpdateRotation(TimeSpan.FromSeconds(CountDownValueInSeconds));
         }
 
         internal void UpdateDistanceToObject(Length distance)
@@ -75,11 +77,19 @@ namespace DisplayTest.Domain.Models
                 Resolver.Log.Debug($"{distance.Centimeters} cm");
 
             _currentState.UpdateDistanceToObject(distance);
+            bluetoothHandler.UpdateDistance(distance);
         }
 
         internal void HandleButtonClicked()
         {
             Resolver.Log.Debug("Button clicked");
+            bluetoothHandler.RotationClicked(true);
+        }
+
+        internal void HandleButtonReleased()
+        {
+            Resolver.Log.Debug("Button clicked");
+            bluetoothHandler.RotationClicked(false);
         }
     }
 }

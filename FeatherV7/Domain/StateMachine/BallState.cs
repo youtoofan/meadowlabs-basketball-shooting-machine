@@ -1,9 +1,10 @@
 ﻿using DisplayTest.Domain.Models;
 using Meadow;
-using Meadow.Units;
+using UnitsNet;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using CommonFeather;
 
 namespace DisplayTest.Domain.StateMachine
 {
@@ -30,7 +31,7 @@ namespace DisplayTest.Domain.StateMachine
         internal override void UpdateDistanceToObject(Length distance)
         {
             // one final check to avoid false positive readings.
-            if (distance <= Length.Zero || distance > BallShooterMachine.MINIMUM_SENSOR_DISTANCE)
+            if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
             {
                 Resolver.Log.Info("Ball is out-of-bounds again.");
                 this.BallShooterMachine.SetState(this.BallShooterMachine.NoBallState);
@@ -38,7 +39,7 @@ namespace DisplayTest.Domain.StateMachine
 
             Resolver.Log.Info("Correct distance confirmed.");
 
-            if (this.BallShooterMachine.CountDownValueInSeconds >= BallShooterMachine.MINIMUM_COUNTDOWN_SECONDS)
+            if (this.BallShooterMachine.CountDownValueInSeconds >= Constants.Sensors.MINIMUM_COUNTDOWN_SECONDS)
             {
                 this.BallShooterMachine.SetState(this.BallShooterMachine.LaunchingState);
             }

@@ -1,8 +1,8 @@
 ﻿using DisplayTest.Domain.Models;
-using Meadow.Units;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using UnitsNet;
 
 namespace DisplayTest.Domain.StateMachine
 {
