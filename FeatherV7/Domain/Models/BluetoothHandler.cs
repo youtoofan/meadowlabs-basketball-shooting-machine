@@ -90,10 +90,12 @@ namespace FeatherV7.Domain.Models
         {
             Ssid.ValueSet += (s, e) =>
             {
+                Resolver.Log.Info("SSID set");
                 ssid = (string)e;
             };
             Password.ValueSet += (s, e) =>
             {
+                Resolver.Log.Info("PW set");
                 password = (string)e;
             };
             ToggleBleConnection.ValueSet += (s, e) =>
@@ -205,7 +207,7 @@ namespace FeatherV7.Domain.Models
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write)
                 );
 
-            return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService, machineService);
+            return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService/*, machineService*/);
         }
 
         

@@ -14,7 +14,6 @@ namespace MobileFeather.ViewModel
     {
         ICharacteristic CharacteristicSsid;
         ICharacteristic CharacteristicPassword;
-        ICharacteristic CharacteristicToggleBleConnection;
         ICharacteristic CharacteristicToggleWifiConnection;
 
         bool _showPassword;
@@ -188,7 +187,7 @@ namespace MobileFeather.ViewModel
 
             foreach (var serviceItem in services)
             {
-                if (UuidToUshort(serviceItem.Id.ToString()) == DEVICE_ID)
+                if (UuidToUshort(serviceItem.Id.ToString()) == Constants.Bluetooth.WIFI_SERVICE_UID)
                 {
                     service = serviceItem;
                 }
@@ -196,12 +195,12 @@ namespace MobileFeather.ViewModel
 
             CharacteristicSsid = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.SSID));
             CharacteristicPassword = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.PASSWORD));
-            CharacteristicIsBlePaired = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.TOGGLE_BLE_CONNECTION));
+            CharacteristicToggleBleConnection = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.TOGGLE_BLE_CONNECTION));
             CharacteristicToggleWifiConnection = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.TOGGLE_WIFI_CONNECTION));
 
             await Task.Delay(1000);
 
-            await CharacteristicIsBlePaired.WriteAsync(TRUE);
+            await CharacteristicToggleBleConnection.WriteAsync(TRUE);
 
             var temp = await CharacteristicToggleWifiConnection.ReadAsync();
             HasJoinedWifi = temp.data[0] == 1;

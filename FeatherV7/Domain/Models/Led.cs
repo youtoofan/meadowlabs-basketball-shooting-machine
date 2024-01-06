@@ -46,7 +46,8 @@ namespace DisplayTest.Domain.Models
 
         public void StartPulse(Color color)
         {
-            this.StartPulse(color);
+            this.SetColor(color);
+            //this.StartPulse(color);
         }
     }
 }

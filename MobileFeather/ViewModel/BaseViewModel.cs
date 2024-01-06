@@ -23,7 +23,7 @@ namespace MobileFeather.ViewModel
         protected IAdapter adapter;
         protected IService service;
 
-        protected ICharacteristic CharacteristicIsBlePaired;
+        protected ICharacteristic CharacteristicToggleBleConnection;
 
         public ObservableCollection<IDevice> DeviceList { get; set; }
 
@@ -82,20 +82,31 @@ namespace MobileFeather.ViewModel
 
         async void AdapterDeviceDiscovered(object sender, DeviceEventArgs e)
         {
-            if (DeviceList.FirstOrDefault(x => x.Name == e.Device.Name) == null &&
-                !string.IsNullOrEmpty(e.Device.Name))
+            if(string.IsNullOrEmpty(e.Device.Name))
             {
-                DeviceList.Add(e.Device);
+                return;
             }
 
-            if (e != null &&
-                e.Device != null &&
-                !string.IsNullOrEmpty(e.Device.Name) &&
-                e.Device.Name.Contains(Constants.Bluetooth.DEFINITION_SERVICE_NAME))
+            try
             {
-                await adapter.StopScanningForDevicesAsync();
-                IsDeviceListEmpty = false;
-                DeviceSelected = e.Device;
+                MainThread.BeginInvokeOnMainThread(async () =>
+                {
+                    DeviceList.Add(e.Device);
+
+                    if (e != null &&
+                        e.Device != null &&
+                        !string.IsNullOrEmpty(e.Device.Name) &&
+                        e.Device.Name.Contains(Constants.Bluetooth.DEFINITION_SERVICE_NAME))
+                    {
+                        await adapter.StopScanningForDevicesAsync();
+                        IsDeviceListEmpty = false;
+                        DeviceSelected = e.Device;
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
             }
         }
 
@@ -104,6 +115,7 @@ namespace MobileFeather.ViewModel
             try
             {
                 IsScanning = true;
+                DeviceList.Clear();
 
                 var tasks = new Task[]
                 {
@@ -129,7 +141,7 @@ namespace MobileFeather.ViewModel
             {
                 if (IsBlePaired)
                 {
-                    await CharacteristicIsBlePaired.WriteAsync(FALSE);
+                    await CharacteristicToggleBleConnection.WriteAsync(FALSE);
                     await adapter.DisconnectDeviceAsync(DeviceSelected);
                     IsBlePaired = false;
                 }

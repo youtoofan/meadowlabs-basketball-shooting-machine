@@ -58,10 +58,11 @@ namespace DisplayTest
 
         public override Task Initialize()
         {
+#if !DEBUG
             var cloudLogger = new CloudLogger();
             Resolver.Log.AddProvider(cloudLogger);
             Resolver.Services.Add(cloudLogger);
-
+#endif
             Resolver.Log.Info("Initialize...");
 
             var i2cBus = Device.CreateI2cBus(I2cBusSpeed.FastPlus);
