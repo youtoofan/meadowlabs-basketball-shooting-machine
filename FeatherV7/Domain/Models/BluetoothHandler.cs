@@ -47,6 +47,7 @@ namespace FeatherV7.Domain.Models
         ICharacteristic Distance;
         ICharacteristic Rotation;
         ICharacteristic Button;
+        ICharacteristic WriteAble;
 
         string ssid;
         string password;
@@ -188,19 +189,26 @@ namespace FeatherV7.Domain.Models
                     name: nameof(Rotation),
                     uuid: Constants.Bluetooth.ROTATION,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write,
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
                     maxLength: 256),
                 Distance = new CharacteristicString(
                     name: nameof(Distance),
                     uuid: Constants.Bluetooth.DISTANCE,
-                    permissions: CharacteristicPermission.Read,
-                    properties: CharacteristicProperty.Read,
+                    permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
                     maxLength: 256),
                 Button = new CharacteristicBool(
                     name: nameof(Button),
                     uuid: Constants.Bluetooth.BUTTON,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write)
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify
+                    ),
+                WriteAble = new CharacteristicBool(
+                    name: "writable",
+                    uuid: Constants.Bluetooth.WRITEABLE,
+                    permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify
+                    )
                 );
 
             return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService);

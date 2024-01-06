@@ -33,10 +33,10 @@ namespace DisplayTest.Domain.Models
             this.Led = led;
 
             this.bluetoothHandler = bluetoothHandler;
-            this.bluetoothHandler.ButtonClicked += (s, e) => { this.Graphics.ShowState("Button ok"); };
+            this.bluetoothHandler.ButtonClicked += (s, e) => { this.Graphics.ShowState($"Button {e}"); };
             this.bluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
-            this.bluetoothHandler.BlePaired += (s, e) => { this.Graphics.ShowState("BLE ok"); };
-            this.bluetoothHandler.WifiEnabled += (s, e) => { this.Graphics.ShowState("WIFI ok"); };
+            this.bluetoothHandler.BlePaired += (s, e) => { this.Graphics.ShowState($"BLE {e}"); };
+            this.bluetoothHandler.WifiEnabled += (s, e) => { this.Graphics.ShowState($"WIFI {e}"); };
 
             this.BootingState = new BootingState(this);
             this.LaunchingState = new LaunchingState(this);

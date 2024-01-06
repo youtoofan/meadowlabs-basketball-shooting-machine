@@ -15,6 +15,9 @@ namespace MobileFeather.ViewModel
         ICharacteristic CharacteristicSsid;
         ICharacteristic CharacteristicPassword;
         ICharacteristic CharacteristicToggleWifiConnection;
+        ICharacteristic CharacteristicDistance;
+        ICharacteristic CharacteristicRotation;
+        ICharacteristic CharacteristicButton;
 
         bool _showPassword;
         public bool ShowPassword
@@ -187,7 +190,7 @@ namespace MobileFeather.ViewModel
 
             foreach (var serviceItem in services)
             {
-                if (UuidToUshort(serviceItem.Id.ToString()) == Constants.Bluetooth.WIFI_SERVICE_UID)
+                if (UuidToUshort(serviceItem.Id.ToString()) == Constants.Bluetooth.MACHINE_SERVICE_UID)
                 {
                     service = serviceItem;
                 }
@@ -197,13 +200,38 @@ namespace MobileFeather.ViewModel
             CharacteristicPassword = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.PASSWORD));
             CharacteristicToggleBleConnection = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.TOGGLE_BLE_CONNECTION));
             CharacteristicToggleWifiConnection = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.TOGGLE_WIFI_CONNECTION));
+            CharacteristicDistance = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.DISTANCE));
+            CharacteristicRotation = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.ROTATION));
+            CharacteristicButton = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.BUTTON));
 
             await Task.Delay(1000);
 
             await CharacteristicToggleBleConnection.WriteAsync(TRUE);
 
+            await SetupBluetoothDataReceiveHandlersAsync(CancellationToken.None);
+
             var temp = await CharacteristicToggleWifiConnection.ReadAsync();
             HasJoinedWifi = temp.data[0] == 1;
+        }
+
+        private async Task SetupBluetoothDataReceiveHandlersAsync(CancellationToken token)
+        {
+            CharacteristicButton.ValueUpdated += (s, e) =>
+            {
+                ButtonClicked = CharacteristicButton.Value[0] == 1;
+            };
+            CharacteristicRotation.ValueUpdated += (s, e) =>
+            {
+                Rotation = (int.Parse(CharacteristicRotation.StringValue));
+            };
+            CharacteristicDistance.ValueUpdated += (s, e) =>
+            {
+                Distance = (int.Parse(CharacteristicDistance.StringValue));
+            };
+
+            //await CharacteristicDistance.StartUpdatesAsync(token);
+            await CharacteristicRotation.StartUpdatesAsync(token);
+            await CharacteristicButton.StartUpdatesAsync(token);
         }
     }
 }
