@@ -109,7 +109,7 @@ namespace FeatherV7.Domain.Models
 
                 if ((bool)e)
                 {
-                    Resolver.Log.Info("Connecting");
+                    Resolver.Log.Info("WIFI Connecting");
                     await wifi.Connect(ssid, password, TimeSpan.FromSeconds(45));
 
                     if (wifi.IsConnected)
@@ -119,7 +119,7 @@ namespace FeatherV7.Domain.Models
                 }
                 else
                 {
-                    Resolver.Log.Info("Disconnecting");
+                    Resolver.Log.Info("WIFI Disconnecting");
                     await wifi.Disconnect(false);
                 }
             };
@@ -140,6 +140,8 @@ namespace FeatherV7.Domain.Models
             WifiEnabled.Invoke(sender, true);
 
             led.StartPulse(Color.Magenta);
+
+            Resolver.Log.Info("WIFI Connected");
         }
 
         private void WifiNetworkDisconnected(INetworkAdapter sender)
@@ -157,8 +159,8 @@ namespace FeatherV7.Domain.Models
         private Definition GetDefinition()
         {
             var wifiService = new Service(
-                name: Constants.Bluetooth.WIFI_SERVICE_NAME,
-                uuid: Constants.Bluetooth.WIFI_SERVICE_UID,
+                name: Constants.Bluetooth.MACHINE_SERVICE_NAME,
+                uuid: Constants.Bluetooth.MACHINE_SERVICE_UID,
 
                 Ssid = new CharacteristicString(
                     name: nameof(Ssid),
@@ -181,13 +183,7 @@ namespace FeatherV7.Domain.Models
                     name: nameof(ToggleWifiConnection),
                     uuid: Constants.Bluetooth.TOGGLE_WIFI_CONNECTION,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write)
-                );
-
-            var machineService = new Service(
-                name: Constants.Bluetooth.MACHINE_SERVICE_NAME,
-                uuid: Constants.Bluetooth.MACHINE_SERVICE_UID,
-
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write),
                 Rotation = new CharacteristicString(
                     name: nameof(Rotation),
                     uuid: Constants.Bluetooth.ROTATION,
@@ -207,7 +203,7 @@ namespace FeatherV7.Domain.Models
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write)
                 );
 
-            return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService/*, machineService*/);
+            return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService);
         }
 
         

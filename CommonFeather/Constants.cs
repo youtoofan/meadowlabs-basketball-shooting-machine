@@ -14,10 +14,10 @@ namespace CommonFeather
             public const string DISTANCE = "C1D4BDE2-9C09-4592-B7F4-3B4861E6E388";
             public const string BUTTON = "246CA532-FBDF-4C16-96A2-D1AC026322D2";
             public const string TOGGLE_BLE_CONNECTION = "8ee2de4ced7c4f2c92a1f984507d87e3";
-            public const int WIFI_SERVICE_UID = 252;
-            public const string WIFI_SERVICE_NAME = "MeadowWifiService";
+            //public const int WIFI_SERVICE_UID = 252;
+            //public const string WIFI_SERVICE_NAME = "wifi-service";
             public const int MACHINE_SERVICE_UID = 253;
-            public const string MACHINE_SERVICE_NAME = "MeadowBasketBallMachineService";
+            public const string MACHINE_SERVICE_NAME = "machine-service";
             public const string DEFINITION_SERVICE_NAME = "MeadowBasketBallShooter";
         }
 
