@@ -3,6 +3,7 @@ using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.EventArgs;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -229,9 +230,25 @@ namespace MobileFeather.ViewModel
                 Distance = (int.Parse(CharacteristicDistance.StringValue));
             };
 
-            //await CharacteristicDistance.StartUpdatesAsync(token);
-            await CharacteristicRotation.StartUpdatesAsync(token);
-            await CharacteristicButton.StartUpdatesAsync(token);
+            while (true)
+            {
+                var t1 =  await CharacteristicDistance.ReadAsync(token);
+                var t2 = await CharacteristicRotation.ReadAsync(token);
+                var t3 = await CharacteristicButton.ReadAsync(token);
+
+                if (t1.resultCode == 0)
+                    Debug.WriteLine("DISTANCE: " + Encoding.Default.GetString(t1.data));
+                Debug.WriteLine("");
+
+                if (t2.resultCode == 0)
+                    Debug.WriteLine("ROTATION: " + Encoding.Default.GetString(t2.data));
+                Debug.WriteLine("");
+
+                //if (t3.resultCode == 0)
+                //    Debug.WriteLine("BUTTON:   " + Encoding.Default.GetString(t3.data));
+
+                await Task.Delay(500);
+            }
         }
     }
 }
