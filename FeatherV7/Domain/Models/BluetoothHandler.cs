@@ -159,6 +159,8 @@ namespace FeatherV7.Domain.Models
 
         private Definition GetDefinition()
         {
+            var notificationDescriptor = new Descriptor(Constants.Bluetooth.WRITEABLE, BitConverter.ToInt16(Constants.Bluetooth.ENABLE_NOTIFICATION_VALUE, 0));
+
             var wifiService = new Service(
                 name: Constants.Bluetooth.MACHINE_SERVICE_NAME,
                 uuid: Constants.Bluetooth.MACHINE_SERVICE_UID,
@@ -190,25 +192,21 @@ namespace FeatherV7.Domain.Models
                     uuid: Constants.Bluetooth.ROTATION,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
-                    maxLength: 256),
+                    maxLength: 256,
+                    notificationDescriptor),
                 Distance = new CharacteristicString(
                     name: nameof(Distance),
                     uuid: Constants.Bluetooth.DISTANCE,
-                    permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
-                    maxLength: 256),
+                    permissions: CharacteristicPermission.Read,
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
+                    maxLength: 256,
+                    notificationDescriptor),
                 Button = new CharacteristicBool(
                     name: nameof(Button),
                     uuid: Constants.Bluetooth.BUTTON,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify
-                    ),
-                WriteAble = new CharacteristicBool(
-                    name: "writable",
-                    uuid: Constants.Bluetooth.WRITEABLE,
-                    permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
-                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify
-                    )
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
+                    notificationDescriptor)
                 );
 
             return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService);

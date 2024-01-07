@@ -16,8 +16,9 @@ namespace CommonFeather
             public const string TOGGLE_BLE_CONNECTION = "8ee2de4ced7c4f2c92a1f984507d87e3";
             public const string WRITEABLE = "00002902-0000-1000-8000-00805f9b34fb";
 
-            //public const int WIFI_SERVICE_UID = 252;
-            //public const string WIFI_SERVICE_NAME = "wifi-service";
+            public static readonly byte[] ENABLE_NOTIFICATION_VALUE = { 0x01, 0x00 };
+
+
             public const int MACHINE_SERVICE_UID = 253;
             public const string MACHINE_SERVICE_NAME = "machine-service";
             public const string DEFINITION_SERVICE_NAME = "MeadowBasketBallShooter";

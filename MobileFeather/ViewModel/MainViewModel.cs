@@ -230,25 +230,41 @@ namespace MobileFeather.ViewModel
                 Distance = (int.Parse(CharacteristicDistance.StringValue));
             };
 
+#if !WINDOWS
+            if (CharacteristicDistance.CanUpdate)
+                await CharacteristicDistance.StartUpdatesAsync(token);
+
+            if (CharacteristicRotation.CanUpdate)
+                await CharacteristicRotation.StartUpdatesAsync(token);
+
+            if (CharacteristicButton.CanUpdate)
+                await CharacteristicButton.StartUpdatesAsync(token);
+#else
             while (true)
             {
-                var t1 =  await CharacteristicDistance.ReadAsync(token);
-                var t2 = await CharacteristicRotation.ReadAsync(token);
-                var t3 = await CharacteristicButton.ReadAsync(token);
+                try 
+	            {	        
+		            var t1 = await CharacteristicDistance.ReadAsync(token);
+                    var t2 = await CharacteristicRotation.ReadAsync(token);
+                    var t3 = await CharacteristicButton.ReadAsync(token);
 
-                if (t1.resultCode == 0)
-                    Debug.WriteLine("DISTANCE: " + Encoding.Default.GetString(t1.data));
-                Debug.WriteLine("");
+                    if (t1.data.Length > 0)
+                        Distance = (double.Parse(Encoding.Default.GetString(t1.data))) / 10;
 
-                if (t2.resultCode == 0)
-                    Debug.WriteLine("ROTATION: " + Encoding.Default.GetString(t2.data));
-                Debug.WriteLine("");
+                    if (t2.data.Length > 0)
+                        Rotation = (int.Parse(Encoding.Default.GetString(t2.data)));
 
-                //if (t3.resultCode == 0)
-                //    Debug.WriteLine("BUTTON:   " + Encoding.Default.GetString(t3.data));
+                    if (t3.data.Length > 0)
+                        ButtonClicked = t3.data[0] == 1;
+	            }
+	            catch (Exception ex)
+	            {
+                    Debug.WriteLine(ex.Message);
+	            }
 
                 await Task.Delay(500);
             }
+#endif
         }
     }
 }

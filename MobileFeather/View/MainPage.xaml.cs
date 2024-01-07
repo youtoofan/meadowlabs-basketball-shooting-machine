@@ -8,7 +8,6 @@ namespace MobileFeather
         public MainPage()
         {
             InitializeComponent();
-            BindingContext = new MainViewModel();
         }
 
         protected override void OnAppearing()
