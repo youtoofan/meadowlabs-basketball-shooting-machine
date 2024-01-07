@@ -13,13 +13,14 @@ namespace MobileFeather.ViewModel
 {
     public class MainViewModel : BaseViewModel
     {
-        ICharacteristic CharacteristicSsid;
-        ICharacteristic CharacteristicPassword;
-        ICharacteristic CharacteristicToggleWifiConnection;
-        ICharacteristic CharacteristicDistance;
-        ICharacteristic CharacteristicRotation;
-        ICharacteristic CharacteristicButton;
-        ICharacteristic CharacteristicLaunch;
+        private ICharacteristic CharacteristicSsid;
+        private ICharacteristic CharacteristicPassword;
+        private ICharacteristic CharacteristicToggleWifiConnection;
+        private ICharacteristic CharacteristicDistance;
+        private ICharacteristic CharacteristicRotation;
+        private ICharacteristic CharacteristicButton;
+        private ICharacteristic CharacteristicLaunch;
+        private CancellationTokenSource CancellationTokenSource;
 
         bool _showPassword;
         public bool ShowPassword
@@ -137,7 +138,7 @@ namespace MobileFeather.ViewModel
             set
             {
                 if(value && Vibration.Default.IsSupported)
-                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(1000));
 
                 launchClicked = value;
                 OnPropertyChanged(nameof(LaunchClicked));
@@ -219,10 +220,18 @@ namespace MobileFeather.ViewModel
 
             HasJoinedWifi = false;
             IsBlePaired = false;
+
+            if (CancellationTokenSource is not null)
+            {
+                CancellationTokenSource.Cancel();
+                CancellationTokenSource.Dispose();
+            }
         }
 
         private async void AdapterDeviceConnected(object sender, DeviceEventArgs e)
         {
+            CancellationTokenSource = new CancellationTokenSource();
+
             IsBlePaired = true;
 
             IDevice device = e.Device;
@@ -250,10 +259,13 @@ namespace MobileFeather.ViewModel
 
             await CharacteristicToggleBleConnection.WriteAsync(TRUE);
 
-            await SetupBluetoothDataReceiveHandlersAsync(CancellationToken.None);
+            await SetupBluetoothDataReceiveHandlersAsync(CancellationTokenSource.Token);
 
-            var temp = await CharacteristicToggleWifiConnection.ReadAsync();
-            HasJoinedWifi = temp.data[0] == 1;
+            if (CharacteristicToggleWifiConnection.CanRead)
+            {
+                var temp = await CharacteristicToggleWifiConnection.ReadAsync();
+                HasJoinedWifi = temp.data[0] == 1;
+            }
         }
 
         private async Task SetupBluetoothDataReceiveHandlersAsync(CancellationToken token)
@@ -275,6 +287,8 @@ namespace MobileFeather.ViewModel
                 LaunchClicked = CharacteristicLaunch.Value[0] == 1;
             };
 
+
+            // not supported yet
             //if (CharacteristicDistance.CanUpdate)
             //    await CharacteristicDistance.StartUpdatesAsync(token);
 

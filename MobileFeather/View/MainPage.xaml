@@ -24,15 +24,15 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Text="Bluetooth devices:" FontSize="Medium" TextColor="Black" />
+            <Label Grid.Row="0" Text="Bluetooth devices:" FontSize="Small" TextColor="Black" />
 
             <Frame Grid.Row="1" BackgroundColor="#23ABE3" HasShadow="False" CornerRadius="5" BorderColor="Transparent" Padding="10,0,0,0">
                 <Grid ColumnDefinitions="*, Auto, 1, Auto" ColumnSpacing="0">
                     <Grid Grid.Column="0">
-                        <Picker TextColor="White" FontSize="Medium" BackgroundColor="Transparent" Margin="0,4,0,0"
+                        <Picker TextColor="White" FontSize="Small" BackgroundColor="Transparent" Margin="0,4,0,0"
                             ItemsSource="{Binding DeviceList}" ItemDisplayBinding="{Binding Name}" SelectedItem="{Binding DeviceSelected}"/>
                         <Label IsVisible="{Binding IsDeviceListEmpty}" Text="Pick a device" 
-                            FontSize="Medium" TextColor="White" VerticalOptions="Center" />
+                            FontSize="Small" TextColor="White" VerticalOptions="Center" />
                     </Grid>
 
                     <Grid Grid.Column="1" WidthRequest="50" HeightRequest="50">
@@ -73,7 +73,7 @@
                 </Grid>
             </Frame>
 
-            <Label Grid.Row="2" Text="WiFi Settings:" TextColor="Black" FontSize="Medium" Margin="0,5" />
+            <Label Grid.Row="2" Text="WiFi Settings:" TextColor="Black" FontSize="Small" Margin="0,5" />
 
             <Frame Grid.Row="3" BackgroundColor="#10485E" HasShadow="False" HeightRequest="45"
                 CornerRadius="5" BorderColor="Transparent" Padding="10,0">
@@ -143,18 +143,18 @@
                 </Button.Triggers>
             </Button>
 
-            <Label Grid.Row="6" Text="Machine Settings:" TextColor="Black" FontSize="Medium" Margin="0,5" />
+            <Label Grid.Row="6" Text="Machine Settings:" TextColor="Black" FontSize="Small" Margin="0,5" />
 
             <StackLayout Orientation="Vertical" Grid.Row="7" MinimumHeightRequest="60">
                 <Label Text="{Binding Source={x:Reference rotationSlider},
                               Path=Value,
                               StringFormat='Delay is {0:F0} seconds'}" TextColor="Black"/>
-                <Slider x:Name="rotationSlider" Minimum="0" Maximum="25" Value="{Binding Rotation}" Margin="0,0,0,5"/>
+                <Slider x:Name="rotationSlider" Minimum="0" Maximum="25" Value="{Binding Rotation}" Margin="0,0,0,5" MinimumTrackColor="Green" MaximumTrackColor="Red" ThumbColor="Black"/>
 
                 <Label Text="{Binding Source={x:Reference distanceSlider},
                               Path=Value,
                               StringFormat='Distance is {0:F0} cm.'}" TextColor="Black"/>
-                <Slider x:Name="distanceSlider" Minimum="-1" Maximum="200" Value="{Binding Distance}" Margin="0,0,0,5" MinimumHeightRequest="20"/>
+                <Slider x:Name="distanceSlider" Minimum="-1" Maximum="200" Value="{Binding Distance}" Margin="0,0,0,15" MinimumTrackColor="Green" MaximumTrackColor="Red" ThumbColor="Black"/>
 
                 <StackLayout Orientation="Horizontal">
                     <Button Command="{Binding ClickButtonCommand}" Text="Button" BackgroundColor="Green" TextColor="Black" Margin="5"/>
