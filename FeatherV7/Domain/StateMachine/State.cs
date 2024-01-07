@@ -20,6 +20,6 @@ namespace DisplayTest.Domain.StateMachine
         internal abstract void SetLaunchDelay(TimeSpan delay);
 
         internal abstract void UpdateDistanceToObject(Length distance);
-        
+        internal abstract void ForceLaunch();
     }
 }

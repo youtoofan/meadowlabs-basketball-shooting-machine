@@ -58,6 +58,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <None Include="Resources\AppIcon\appicon.svg" />
+	  <None Include="Resources\AppIcon\appiconfg.svg" />
 	  <None Remove="Resources\Images\img_ble_pair.png" />
 	  <None Remove="Resources\Images\img_ble_paired.png" />
 	  <None Remove="Resources\Images\img_hide.png" />

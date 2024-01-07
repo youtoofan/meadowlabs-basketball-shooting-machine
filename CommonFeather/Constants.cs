@@ -11,8 +11,9 @@ namespace CommonFeather
             public const string PASSWORD = "b1cb00bd69424cba937a597fabb93052";
             public const string TOGGLE_WIFI_CONNECTION = "98dea8431f7443a3bf24f78650672361";
             public const string ROTATION = "e78f7b5e-842b-4b99-94e3-7401bf72b870";
-            public const string DISTANCE = "C1D4BDE2-9C09-4592-B7F4-3B4861E6E388";
-            public const string BUTTON = "246CA532-FBDF-4C16-96A2-D1AC026322D2";
+            public const string DISTANCE = "c1d4bde2-9c09-4592-b7f4-3b4861e6e388";
+            public const string BUTTON = "246ca532-fbdf-4c16-96a2-d1ac026322d2";
+            public const string LAUNCH = "ecdd38ff-d30e-4c08-bf10-6bce435b31e0";
             public const string TOGGLE_BLE_CONNECTION = "8ee2de4ced7c4f2c92a1f984507d87e3";
             public const string WRITEABLE = "00002902-0000-1000-8000-00805f9b34fb";
 

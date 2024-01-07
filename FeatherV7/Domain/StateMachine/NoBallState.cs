@@ -32,5 +32,10 @@ namespace DisplayTest.Domain.StateMachine
 
             this.BallShooterMachine.SetState(this.BallShooterMachine.BallState);
         }
+
+        internal override void ForceLaunch()
+        {
+            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
+        }
     }
 }

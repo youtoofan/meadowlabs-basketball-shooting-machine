@@ -57,6 +57,7 @@ namespace DisplayTest.Domain.StateMachine
                     {
                         Resolver.Log.Error("Launch was cancelled.");
 
+                        this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
                         this.BallShooterMachine.Graphics.ShowCancel();
                         this.BallShooterMachine.Led.ShowError();
                         this.BallShooterMachine.Speaker.PlayWarningAsync().SafeFireAndForget();
@@ -71,10 +72,10 @@ namespace DisplayTest.Domain.StateMachine
                     await Task.Delay(TimeSpan.FromSeconds(1));
                 }
 
+                this.BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
                 this.BallShooterMachine.Graphics.ShowBoom();
                 this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
                 this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
-                
 
                 Resolver.Log.Error("Launch successfull!");
 
@@ -83,6 +84,11 @@ namespace DisplayTest.Domain.StateMachine
             await task;
             await Task.Delay(TimeSpan.FromSeconds(3));
             this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+        }
+
+        internal override void ForceLaunch()
+        {
+            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

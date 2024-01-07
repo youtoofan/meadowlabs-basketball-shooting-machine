@@ -15,11 +15,14 @@ namespace DisplayTest.Domain.StateMachine
             Resolver.Log.Debug("Ready");
         }
 
+        
+
         internal override void Init()
         {
             this.BallShooterMachine.Graphics.ShowState("Ready");
             this.BallShooterMachine.Led.ShowReady();
             this.BallShooterMachine.Graphics.ShowCurrentTimeScreen();
+            this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
         }
 
         internal override void SetLaunchDelay(TimeSpan delay)
@@ -44,6 +47,11 @@ namespace DisplayTest.Domain.StateMachine
             {
                 this.BallShooterMachine.SetState(this.BallShooterMachine.NoBallState);
             }
+        }
+
+        internal override void ForceLaunch()
+        {
+            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

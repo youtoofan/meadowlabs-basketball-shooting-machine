@@ -19,6 +19,7 @@ namespace MobileFeather.ViewModel
         ICharacteristic CharacteristicDistance;
         ICharacteristic CharacteristicRotation;
         ICharacteristic CharacteristicButton;
+        ICharacteristic CharacteristicLaunch;
 
         bool _showPassword;
         public bool ShowPassword
@@ -125,14 +126,53 @@ namespace MobileFeather.ViewModel
             }
         }
 
-        public ICommand ToggleWifiConnectionCommand { get; set; }
+        private bool launchClicked;
+        public bool LaunchClicked
+        {
+            get
+            {
+                return launchClicked;
+            }
 
+            set
+            {
+                if(value && Vibration.Default.IsSupported)
+                    Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(500));
+
+                launchClicked = value;
+                OnPropertyChanged(nameof(LaunchClicked));
+            }
+        }
+
+        public ICommand ClickButtonCommand { get; set; }
+        public ICommand ClickLaunchCommand { get; set; }
+        public ICommand ToggleWifiConnectionCommand { get; set; }
         public ICommand TogglePasswordVisibility { get; set; }
 
         public MainViewModel()
         {
             adapter.DeviceConnected += AdapterDeviceConnected;
             adapter.DeviceDisconnected += AdapterDeviceDisconnected;
+
+            ClickButtonCommand = new Command(async () =>
+            {
+                if (!IsBlePaired)
+                {
+                    return;
+                }
+
+                await CharacteristicButton.WriteAsync(BitConverter.GetBytes(true));
+            });
+
+            ClickLaunchCommand = new Command(async () =>
+            {
+                if (!IsBlePaired)
+                {
+                    return;
+                }
+
+                await CharacteristicLaunch.WriteAsync(BitConverter.GetBytes(true));
+            });
 
             ToggleWifiConnectionCommand = new Command(async () =>
             {
@@ -172,7 +212,7 @@ namespace MobileFeather.ViewModel
             TogglePasswordVisibility = new Command(() => ShowPassword = !ShowPassword);
         }
 
-        void AdapterDeviceDisconnected(object sender, DeviceEventArgs e)
+        private void AdapterDeviceDisconnected(object sender, DeviceEventArgs e)
         {
             Ssid = string.Empty;
             Password = string.Empty;
@@ -181,7 +221,7 @@ namespace MobileFeather.ViewModel
             IsBlePaired = false;
         }
 
-        async void AdapterDeviceConnected(object sender, DeviceEventArgs e)
+        private async void AdapterDeviceConnected(object sender, DeviceEventArgs e)
         {
             IsBlePaired = true;
 
@@ -204,6 +244,7 @@ namespace MobileFeather.ViewModel
             CharacteristicDistance = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.DISTANCE));
             CharacteristicRotation = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.ROTATION));
             CharacteristicButton = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.BUTTON));
+            CharacteristicLaunch = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.LAUNCH));
 
             await Task.Delay(1000);
 
@@ -229,34 +270,51 @@ namespace MobileFeather.ViewModel
             {
                 Distance = (int.Parse(CharacteristicDistance.StringValue));
             };
+            CharacteristicLaunch.ValueUpdated += (s, e) =>
+            {
+                LaunchClicked = CharacteristicLaunch.Value[0] == 1;
+            };
 
-#if !WINDOWS
-            if (CharacteristicDistance.CanUpdate)
-                await CharacteristicDistance.StartUpdatesAsync(token);
+            //if (CharacteristicDistance.CanUpdate)
+            //    await CharacteristicDistance.StartUpdatesAsync(token);
 
-            if (CharacteristicRotation.CanUpdate)
-                await CharacteristicRotation.StartUpdatesAsync(token);
+            //if (CharacteristicRotation.CanUpdate)
+            //    await CharacteristicRotation.StartUpdatesAsync(token);
 
-            if (CharacteristicButton.CanUpdate)
-                await CharacteristicButton.StartUpdatesAsync(token);
-#else
-            while (true)
+            //if (CharacteristicButton.CanUpdate)
+            //    await CharacteristicButton.StartUpdatesAsync(token);
+            
+            while (!token.IsCancellationRequested)
             {
                 try 
 	            {	        
 		            var t1 = await CharacteristicDistance.ReadAsync(token);
                     var t2 = await CharacteristicRotation.ReadAsync(token);
                     var t3 = await CharacteristicButton.ReadAsync(token);
+                    var t4 = await CharacteristicLaunch.ReadAsync(token);
 
                     if (t1.data.Length > 0)
-                        Distance = (double.Parse(Encoding.Default.GetString(t1.data))) / 10;
+                    {
+                        var temp = (BitConverter.ToInt32(t1.data));
+                        Distance = temp > 256 ? 0 : temp;
+                    }
 
                     if (t2.data.Length > 0)
-                        Rotation = (int.Parse(Encoding.Default.GetString(t2.data)));
+                    {
+                        var temp = (BitConverter.ToInt32(t2.data));
+                        Rotation = temp > 256 ? 0 : temp;
+                    }
 
                     if (t3.data.Length > 0)
+                    {
                         ButtonClicked = t3.data[0] == 1;
-	            }
+                    }
+
+                    if (t4.data.Length > 0)
+                    {
+                        LaunchClicked = t4.data[0] == 1;
+                    }
+                }
 	            catch (Exception ex)
 	            {
                     Debug.WriteLine(ex.Message);
@@ -264,7 +322,6 @@ namespace MobileFeather.ViewModel
 
                 await Task.Delay(500);
             }
-#endif
         }
     }
 }

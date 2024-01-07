@@ -11,20 +11,6 @@ using System;
 
 namespace FeatherV7.Domain.Models
 {
-    interface IBluetoothHandler
-    {
-        event EventHandler<bool> WifiEnabled;
-        event EventHandler<bool> BleEnabled;
-        event EventHandler<bool> BlePaired;
-        event EventHandler<int> RotationUpdated;
-        event EventHandler<bool> ButtonClicked;
-
-        void Initialize();
-        void UpdateDistance(Length value);
-        void RotationClicked(bool value);
-        void UpdateRotation(TimeSpan value);
-    }
-
     internal class BluetoothHandler: IBluetoothHandler
     {
         public event EventHandler<bool> WifiEnabled = delegate { };
@@ -32,27 +18,27 @@ namespace FeatherV7.Domain.Models
         public event EventHandler<bool> BlePaired = delegate { };
         public event EventHandler<int> RotationUpdated = delegate { };
         public event EventHandler<bool> ButtonClicked = delegate { };
+        public event EventHandler<bool> Launched = delegate { };
 
+        private readonly F7FeatherV2 device;
+        private readonly IShooterLed led;
         
-        readonly F7FeatherV2 device;
-        readonly IShooterLed led;
-
-        IDefinition bleTreeDefinition;
-
-        ICharacteristic Ssid;
-        ICharacteristic Password;
-        ICharacteristic ToggleBleConnection;
-        ICharacteristic ToggleWifiConnection;
-
-        ICharacteristic Distance;
-        ICharacteristic Rotation;
-        ICharacteristic Button;
-        ICharacteristic WriteAble;
-
-        string ssid;
-        string password;
-
-        IWiFiNetworkAdapter wifi;
+        private IDefinition bleTreeDefinition;
+        
+        private ICharacteristic Ssid;
+        private ICharacteristic Password;
+        private ICharacteristic ToggleBleConnection;
+        private ICharacteristic ToggleWifiConnection;
+        
+        private ICharacteristic Distance;
+        private ICharacteristic Rotation;
+        private ICharacteristic Button;
+        private ICharacteristic Launch;
+        
+        private string ssid;
+        private string password;
+        
+        private IWiFiNetworkAdapter wifi;
 
         public BluetoothHandler(F7FeatherV2 device, IShooterLed led)
         {
@@ -74,17 +60,22 @@ namespace FeatherV7.Domain.Models
 
         public void UpdateDistance(Length value)
         {
-            Distance.SetValue(value.Centimeters.ToString());
+            Distance.SetValue((int)Math.Round(value.Centimeters));
         }
 
         public void UpdateRotation(TimeSpan value)
         {
-            Rotation.SetValue(value.TotalSeconds.ToString());
+            Rotation.SetValue((int)Math.Round(value.TotalSeconds));
         }
 
         public void RotationClicked(bool value)
         {
-            Button.SetValue(value ? "true" : "false");
+            Button.SetValue(value);
+        }
+
+        public void LaunchTriggered(bool value)
+        {
+            Launch.SetValue(value);
         }
 
         private void SetupBluetoothDataReceiveHandlers()
@@ -131,6 +122,10 @@ namespace FeatherV7.Domain.Models
             Rotation.ValueSet += (s, e) =>
             {
                 RotationUpdated.Invoke(s, (int)e);
+            };
+            Launch.ValueSet += (s, e) =>
+            {
+                Launched.Invoke(s, (bool)e);
             };
         }
 
@@ -187,23 +182,27 @@ namespace FeatherV7.Domain.Models
                     uuid: Constants.Bluetooth.TOGGLE_WIFI_CONNECTION,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write),
-                Rotation = new CharacteristicString(
+                Rotation = new CharacteristicInt32(
                     name: nameof(Rotation),
                     uuid: Constants.Bluetooth.ROTATION,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
-                    maxLength: 256,
                     notificationDescriptor),
-                Distance = new CharacteristicString(
+                Distance = new CharacteristicInt32(
                     name: nameof(Distance),
                     uuid: Constants.Bluetooth.DISTANCE,
                     permissions: CharacteristicPermission.Read,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
-                    maxLength: 256,
                     notificationDescriptor),
                 Button = new CharacteristicBool(
                     name: nameof(Button),
                     uuid: Constants.Bluetooth.BUTTON,
+                    permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
+                    properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
+                    notificationDescriptor),
+                Launch = new CharacteristicBool(
+                    name: nameof(Launch),
+                    uuid: Constants.Bluetooth.LAUNCH,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
                     notificationDescriptor)

@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using CommonFeather;
+using AsyncAwaitBestPractices;
+using System.Threading.Tasks;
 
 namespace DisplayTest.Domain.StateMachine
 {
@@ -43,6 +45,18 @@ namespace DisplayTest.Domain.StateMachine
             {
                 this.BallShooterMachine.SetState(this.BallShooterMachine.LaunchingState);
             }
+        }
+
+        internal override async void ForceLaunch()
+        {
+            this.BallShooterMachine.Graphics.ShowBoom();
+            this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
+            this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
+
+            Resolver.Log.Error("Launch successfull!");
+
+            await Task.Delay(TimeSpan.FromSeconds(3));
+            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
         }
     }
 }

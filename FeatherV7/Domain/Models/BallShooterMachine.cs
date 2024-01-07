@@ -1,6 +1,5 @@
 ﻿using DisplayTest.Domain.StateMachine;
 using FeatherV7.Domain.Interfaces;
-using FeatherV7.Domain.Models;
 using Meadow;
 using Meadow.Peripherals;
 using System;
@@ -20,7 +19,7 @@ namespace DisplayTest.Domain.Models
         public readonly IShooterSpeaker Speaker;
         public readonly IShooterTrigger Trigger;
         public readonly IShooterLed Led;
-        public readonly IBluetoothHandler bluetoothHandler;
+        public readonly IBluetoothHandler BluetoothHandler;
 
         public int CountDownValueInSeconds = 0;
         private State _currentState;
@@ -32,11 +31,12 @@ namespace DisplayTest.Domain.Models
             this.Trigger = trigger;
             this.Led = led;
 
-            this.bluetoothHandler = bluetoothHandler;
-            this.bluetoothHandler.ButtonClicked += (s, e) => { this.Graphics.ShowState($"Button {e}"); };
-            this.bluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
-            this.bluetoothHandler.BlePaired += (s, e) => { this.Graphics.ShowState($"BLE {e}"); };
-            this.bluetoothHandler.WifiEnabled += (s, e) => { this.Graphics.ShowState($"WIFI {e}"); };
+            this.BluetoothHandler = bluetoothHandler;
+            this.BluetoothHandler.ButtonClicked += (s, e) => { this.Graphics.ShowState($"Button {e}"); };
+            this.BluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
+            this.BluetoothHandler.BlePaired += (s, e) => { this.Graphics.ShowState($"BLE {e}"); };
+            this.BluetoothHandler.WifiEnabled += (s, e) => { this.Graphics.ShowState($"WIFI {e}"); };
+            this.BluetoothHandler.Launched += (s, e) => { _currentState.ForceLaunch(); };
 
             this.BootingState = new BootingState(this);
             this.LaunchingState = new LaunchingState(this);
@@ -71,7 +71,7 @@ namespace DisplayTest.Domain.Models
             }
 
             _currentState.SetLaunchDelay(TimeSpan.FromSeconds(CountDownValueInSeconds));
-            bluetoothHandler.UpdateRotation(TimeSpan.FromSeconds(CountDownValueInSeconds));
+            BluetoothHandler.UpdateRotation(TimeSpan.FromSeconds(CountDownValueInSeconds));
         }
 
         internal void UpdateDistanceToObject(Length distance)
@@ -80,19 +80,19 @@ namespace DisplayTest.Domain.Models
                 Resolver.Log.Debug($"{distance.Centimeters} cm");
 
             _currentState.UpdateDistanceToObject(distance);
-            bluetoothHandler.UpdateDistance(distance);
+            BluetoothHandler.UpdateDistance(distance);
         }
 
         internal void HandleButtonClicked()
         {
             Resolver.Log.Debug("Button clicked");
-            bluetoothHandler.RotationClicked(true);
+            BluetoothHandler.RotationClicked(true);
         }
 
         internal void HandleButtonReleased()
         {
             Resolver.Log.Debug("Button clicked");
-            bluetoothHandler.RotationClicked(false);
+            BluetoothHandler.RotationClicked(false);
         }
     }
 }

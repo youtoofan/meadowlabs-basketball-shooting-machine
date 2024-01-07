@@ -145,21 +145,25 @@
 
             <Label Grid.Row="6" Text="Machine Settings:" TextColor="Black" FontSize="Medium" Margin="0,5" />
 
-            <StackLayout Orientation="Vertical" Grid.Row="7" >
+            <StackLayout Orientation="Vertical" Grid.Row="7" MinimumHeightRequest="60">
                 <Label Text="{Binding Source={x:Reference rotationSlider},
                               Path=Value,
-                              StringFormat='Delay is {0:F0} seconds'}"/>
+                              StringFormat='Delay is {0:F0} seconds'}" TextColor="Black"/>
                 <Slider x:Name="rotationSlider" Minimum="0" Maximum="25" Value="{Binding Rotation}" Margin="0,0,0,5"/>
 
                 <Label Text="{Binding Source={x:Reference distanceSlider},
                               Path=Value,
-                              StringFormat='Distance is {0:F0} cm.'}"/>
-                <Slider x:Name="distanceSlider" Minimum="-1" Maximum="200" Value="{Binding Distance}" Margin="0,0,0,5"/>
-                
-                <Button IsEnabled="{Binding ButtonClicked}" Text="Rotator"/>
+                              StringFormat='Distance is {0:F0} cm.'}" TextColor="Black"/>
+                <Slider x:Name="distanceSlider" Minimum="-1" Maximum="200" Value="{Binding Distance}" Margin="0,0,0,5" MinimumHeightRequest="20"/>
+
+                <StackLayout Orientation="Horizontal">
+                    <Button Command="{Binding ClickButtonCommand}" Text="Button" BackgroundColor="Green" TextColor="Black" Margin="5"/>
+                    <Button Command="{Binding ClickLaunchCommand}" Text="Launch" BackgroundColor="OrangeRed" TextColor="White" Margin="5"/>
+                    <Button Text="Boom" IsVisible="{Binding LaunchClicked}" TextColor="Black" BackgroundColor="LightGray" Margin="5"/>
+                </StackLayout>
             </StackLayout>
             
-            <Label Grid.Row="8" Text="By Wilderness Labs" TextColor="Black" 
+            <Label Grid.Row="9" Text="By Wilderness Labs" TextColor="Black" 
                 HorizontalOptions="Center" VerticalOptions="EndAndExpand" />
         </Grid>
     </Grid>
