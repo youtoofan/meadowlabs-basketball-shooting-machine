@@ -14,6 +14,7 @@ namespace CommonFeather
             public const string DISTANCE = "c1d4bde2-9c09-4592-b7f4-3b4861e6e388";
             public const string BUTTON = "246ca532-fbdf-4c16-96a2-d1ac026322d2";
             public const string LAUNCH = "ecdd38ff-d30e-4c08-bf10-6bce435b31e0";
+            public const string STATUS = "2c1aa9cc-c603-414d-91ea-a9279fd1fa29";
             public const string TOGGLE_BLE_CONNECTION = "8ee2de4ced7c4f2c92a1f984507d87e3";
             public const string WRITEABLE = "00002902-0000-1000-8000-00805f9b34fb";
 

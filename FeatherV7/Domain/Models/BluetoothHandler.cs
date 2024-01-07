@@ -34,6 +34,7 @@ namespace FeatherV7.Domain.Models
         private ICharacteristic Rotation;
         private ICharacteristic Button;
         private ICharacteristic Launch;
+        private ICharacteristic Status;
         
         private string ssid;
         private string password;
@@ -76,6 +77,11 @@ namespace FeatherV7.Domain.Models
         public void LaunchTriggered(bool value)
         {
             Launch.SetValue(value);
+        }
+
+        public void UpdateStatus(string status)
+        {
+            Status.SetValue(status);
         }
 
         private void SetupBluetoothDataReceiveHandlers()
@@ -205,7 +211,13 @@ namespace FeatherV7.Domain.Models
                     uuid: Constants.Bluetooth.LAUNCH,
                     permissions: CharacteristicPermission.Read | CharacteristicPermission.Write,
                     properties: CharacteristicProperty.Read | CharacteristicProperty.Write | CharacteristicProperty.Broadcast | CharacteristicProperty.Notify,
-                    notificationDescriptor)
+                    notificationDescriptor),
+                Status = new CharacteristicString(
+                    name: nameof(Status),
+                    uuid: Constants.Bluetooth.STATUS,
+                    permissions: CharacteristicPermission.Read,
+                    properties: CharacteristicProperty.Read,
+                    maxLength: 256)
                 );
 
             return new Definition(Constants.Bluetooth.DEFINITION_SERVICE_NAME, wifiService);

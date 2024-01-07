@@ -143,7 +143,7 @@
                 </Button.Triggers>
             </Button>
 
-            <Label Grid.Row="6" Text="Machine Settings:" TextColor="Black" FontSize="Small" Margin="0,5" />
+            <Label Grid.Row="6" FormattedText="{Binding Status, StringFormat='Machine info: {0}'}" TextColor="Black" FontSize="Small" Margin="0,5" />
 
             <StackLayout Orientation="Vertical" Grid.Row="7" MinimumHeightRequest="60">
                 <Label Text="{Binding Source={x:Reference rotationSlider},

@@ -9,6 +9,8 @@ namespace DisplayTest.Domain.StateMachine
 {
     internal class BootingState : State
     {
+        public override string Name => "Booting";
+
         public BootingState(BallShooterMachine ballShooterMachine) 
             : base(ballShooterMachine)
         {

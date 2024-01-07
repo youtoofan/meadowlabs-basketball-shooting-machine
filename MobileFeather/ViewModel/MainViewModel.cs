@@ -20,6 +20,8 @@ namespace MobileFeather.ViewModel
         private ICharacteristic CharacteristicRotation;
         private ICharacteristic CharacteristicButton;
         private ICharacteristic CharacteristicLaunch;
+        private ICharacteristic CharacteristicStatus;
+
         private CancellationTokenSource CancellationTokenSource;
 
         bool _showPassword;
@@ -145,6 +147,21 @@ namespace MobileFeather.ViewModel
             }
         }
 
+        string _status;
+        public string Status
+        {
+            get
+            {
+                return _status;
+            }
+
+            set
+            {
+                _status = value;
+                OnPropertyChanged(nameof(Status));
+            }
+        }
+
         public ICommand ClickButtonCommand { get; set; }
         public ICommand ClickLaunchCommand { get; set; }
         public ICommand ToggleWifiConnectionCommand { get; set; }
@@ -162,7 +179,7 @@ namespace MobileFeather.ViewModel
                     return;
                 }
 
-                await CharacteristicButton.WriteAsync(BitConverter.GetBytes(true));
+                await CharacteristicButton.WriteAsync(TRUE);
             });
 
             ClickLaunchCommand = new Command(async () =>
@@ -172,7 +189,7 @@ namespace MobileFeather.ViewModel
                     return;
                 }
 
-                await CharacteristicLaunch.WriteAsync(BitConverter.GetBytes(true));
+                await CharacteristicLaunch.WriteAsync(TRUE);
             });
 
             ToggleWifiConnectionCommand = new Command(async () =>
@@ -230,12 +247,31 @@ namespace MobileFeather.ViewModel
 
         private async void AdapterDeviceConnected(object sender, DeviceEventArgs e)
         {
-            CancellationTokenSource = new CancellationTokenSource();
-
-            IsBlePaired = true;
-
             IDevice device = e.Device;
+            var connected = device.State == Plugin.BLE.Abstractions.DeviceState.Connected;
+            CancellationTokenSource = new CancellationTokenSource();
+            IsBlePaired = connected;
 
+            if (!connected)
+                return;
+
+            await SetupCharacteristics(device);
+
+            await Task.Delay(1000);
+
+            await CharacteristicToggleBleConnection.WriteAsync(TRUE);
+
+            await SetupBluetoothDataReceiveHandlersAsync(CancellationTokenSource.Token);
+
+            if (CharacteristicToggleWifiConnection.CanRead)
+            {
+                var temp = await CharacteristicToggleWifiConnection.ReadAsync();
+                HasJoinedWifi = temp.data[0] == 1;
+            }
+        }
+
+        private async Task SetupCharacteristics(IDevice device)
+        {
             var services = await device.GetServicesAsync();
 
             foreach (var serviceItem in services)
@@ -254,18 +290,7 @@ namespace MobileFeather.ViewModel
             CharacteristicRotation = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.ROTATION));
             CharacteristicButton = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.BUTTON));
             CharacteristicLaunch = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.LAUNCH));
-
-            await Task.Delay(1000);
-
-            await CharacteristicToggleBleConnection.WriteAsync(TRUE);
-
-            await SetupBluetoothDataReceiveHandlersAsync(CancellationTokenSource.Token);
-
-            if (CharacteristicToggleWifiConnection.CanRead)
-            {
-                var temp = await CharacteristicToggleWifiConnection.ReadAsync();
-                HasJoinedWifi = temp.data[0] == 1;
-            }
+            CharacteristicStatus = await service.GetCharacteristicAsync(Guid.Parse(Constants.Bluetooth.STATUS));
         }
 
         private async Task SetupBluetoothDataReceiveHandlersAsync(CancellationToken token)
@@ -306,6 +331,7 @@ namespace MobileFeather.ViewModel
                     var t2 = await CharacteristicRotation.ReadAsync(token);
                     var t3 = await CharacteristicButton.ReadAsync(token);
                     var t4 = await CharacteristicLaunch.ReadAsync(token);
+                    var t5 = await CharacteristicStatus.ReadAsync(token);
 
                     if (t1.data.Length > 0)
                     {
@@ -327,6 +353,12 @@ namespace MobileFeather.ViewModel
                     if (t4.data.Length > 0)
                     {
                         LaunchClicked = t4.data[0] == 1;
+                    }
+
+                    if (t5.data.Length > 0)
+                    {
+                        var temp = (Encoding.Default.GetString(t5.data));
+                        Status = temp;
                     }
                 }
 	            catch (Exception ex)

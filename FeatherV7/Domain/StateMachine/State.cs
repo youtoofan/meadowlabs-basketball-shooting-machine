@@ -9,6 +9,7 @@ namespace DisplayTest.Domain.StateMachine
     internal abstract class State
     {
         protected BallShooterMachine BallShooterMachine { get; private set; }
+        public abstract string Name { get; }
 
         public State(BallShooterMachine ballShooterMachine)
         {

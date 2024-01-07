@@ -12,6 +12,7 @@ namespace DisplayTest.Domain.StateMachine
 {
     internal class BallState : State
     {
+        public override string Name => "Ball detected";
         public BallState(BallShooterMachine ballShooterMachine) 
             : base(ballShooterMachine)
         {

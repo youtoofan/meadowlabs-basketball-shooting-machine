@@ -10,12 +10,12 @@ namespace DisplayTest.Domain.StateMachine
     {
         private int _distanceCounts = 0;
 
+        public override string Name => "Ready";
+
         public ReadyState(BallShooterMachine ballShooterMachine) : base(ballShooterMachine)
         {
             Resolver.Log.Debug("Ready");
         }
-
-        
 
         internal override void Init()
         {

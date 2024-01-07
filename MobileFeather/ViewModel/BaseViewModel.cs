@@ -69,7 +69,6 @@ namespace MobileFeather.ViewModel
             adapter.DeviceDiscovered += AdapterDeviceDiscovered;
 
             CmdToggleConnection = new Command(async () => await ToggleConnection());
-
             CmdSearchForDevices = new Command(async () => await DiscoverDevices());
         }
 
@@ -80,7 +79,7 @@ namespace MobileFeather.ViewModel
             IsScanning = false;
         }
 
-        async void AdapterDeviceDiscovered(object sender, DeviceEventArgs e)
+        void AdapterDeviceDiscovered(object sender, DeviceEventArgs e)
         {
             if(string.IsNullOrEmpty(e.Device.Name))
             {
@@ -141,9 +140,9 @@ namespace MobileFeather.ViewModel
             {
                 if (IsBlePaired)
                 {
+                    IsBlePaired = false;
                     await CharacteristicToggleBleConnection.WriteAsync(FALSE);
                     await adapter.DisconnectDeviceAsync(DeviceSelected);
-                    IsBlePaired = false;
                 }
                 else
                 {

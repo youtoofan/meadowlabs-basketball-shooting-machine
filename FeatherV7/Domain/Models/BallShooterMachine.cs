@@ -54,8 +54,11 @@ namespace DisplayTest.Domain.Models
 
         internal void SetState(State state)
         {
+            var name = state.Name;
             this._currentState = state;
             this._currentState.Init();
+
+            BluetoothHandler.UpdateStatus(name);
         }
 
         internal void HandleRotationDirection(RotationDirection rotationDirection)

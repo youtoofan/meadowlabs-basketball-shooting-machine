@@ -11,6 +11,8 @@ namespace DisplayTest.Domain.StateMachine
 {
     internal class LaunchingState : State
     {
+        public override string Name => "Launching";
+
         private CancellationTokenSource _cancellationTokenSource;
 
         public LaunchingState(BallShooterMachine ballShooterMachine) 
@@ -48,15 +50,17 @@ namespace DisplayTest.Domain.StateMachine
 
             var task = Task.Run(async () =>
             {
-                for (int i = totalSeconds - 1; i >= 0; i--)
+                for (int i = totalSeconds ; i > 0; i--)
                 {
                     this.BallShooterMachine.Speaker.PlayClickAsync().SafeFireAndForget();
                     this.BallShooterMachine.Graphics.ShowCountDownSequenceScreen(i);
+                    this.BallShooterMachine.BluetoothHandler.UpdateStatus($"Launch in {i}...");
 
                     if (cancellationToken.IsCancellationRequested)
                     {
                         Resolver.Log.Error("Launch was cancelled.");
 
+                        this.BallShooterMachine.BluetoothHandler.UpdateStatus("Launch cancelled");
                         this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
                         this.BallShooterMachine.Graphics.ShowCancel();
                         this.BallShooterMachine.Led.ShowError();
@@ -72,6 +76,7 @@ namespace DisplayTest.Domain.StateMachine
                     await Task.Delay(TimeSpan.FromSeconds(1));
                 }
 
+                this.BallShooterMachine.BluetoothHandler.UpdateStatus("Ball away!");
                 this.BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
                 this.BallShooterMachine.Graphics.ShowBoom();
                 this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();

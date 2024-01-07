@@ -17,5 +17,6 @@ namespace FeatherV7.Domain.Interfaces
         void RotationClicked(bool value);
         void LaunchTriggered(bool value);
         void UpdateRotation(TimeSpan value);
+        void UpdateStatus(string status);
     }
 }

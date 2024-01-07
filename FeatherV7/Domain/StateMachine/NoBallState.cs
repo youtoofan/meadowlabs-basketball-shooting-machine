@@ -8,6 +8,8 @@ namespace DisplayTest.Domain.StateMachine
 {
     internal class NoBallState : State
     {
+        public override string Name => "No ball";
+
         public NoBallState(BallShooterMachine ballShooterMachine) 
             : base(ballShooterMachine)
         {
