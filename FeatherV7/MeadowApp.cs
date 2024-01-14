@@ -33,7 +33,7 @@ namespace DisplayTest
 
             _ballShooterMachine = new BallShooterMachine(_graphics, _speaker, _relay, _onboardLed, _bluetoothHandler);
 
-            _distanceSensor.DistanceUpdated += (s, e) =>
+            _distanceSensor.Updated += (s, e) =>
             {
                 _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(e.New.Centimeters));
             };

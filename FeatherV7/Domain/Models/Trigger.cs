@@ -20,7 +20,7 @@ namespace DisplayTest.Domain.Models
 
         public async Task ShootAsync()
         {
-            if (this.IsOn)
+            if (this.State == RelayState.Closed)
             {
                 Resolver.Log.Error("Relay already in ON-state");
                 return;

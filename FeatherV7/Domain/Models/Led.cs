@@ -1,5 +1,5 @@
 ﻿using FeatherV7.Domain.Interfaces;
-using Meadow.Foundation;
+using Meadow;
 using Meadow.Foundation.Leds;
 using Meadow.Hardware;
 using Meadow.Peripherals.Leds;

@@ -1,4 +1,5 @@
-﻿using Meadow.Foundation;
+﻿using Meadow;
+using Meadow.Foundation;
 
 namespace FeatherV7.Domain.Interfaces
 {
