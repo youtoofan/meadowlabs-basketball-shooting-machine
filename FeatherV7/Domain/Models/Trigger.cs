@@ -1,4 +1,5 @@
-﻿using Meadow;
+﻿using FeatherV7.Domain.Interfaces;
+using Meadow;
 using Meadow.Foundation.Relays;
 using Meadow.Hardware;
 using Meadow.Peripherals.Relays;
@@ -9,10 +10,6 @@ using System.Threading.Tasks;
 
 namespace DisplayTest.Domain.Models
 {
-    internal interface IShooterTrigger
-    {
-        Task ShootAsync();
-    }
 
     internal class Trigger : Relay, IShooterTrigger
     {
@@ -23,7 +20,7 @@ namespace DisplayTest.Domain.Models
 
         public async Task ShootAsync()
         {
-            if (this.IsOn)
+            if (this.State == RelayState.Closed)
             {
                 Resolver.Log.Error("Relay already in ON-state");
                 return;

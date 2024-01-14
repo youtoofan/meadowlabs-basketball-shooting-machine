@@ -1,6 +1,6 @@
 ﻿using DisplayTest.Domain.Models;
 using Meadow;
-using Meadow.Units;
+using UnitsNet;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,6 +9,8 @@ namespace DisplayTest.Domain.StateMachine
 {
     internal class BootingState : State
     {
+        public override string Name => "Booting";
+
         public BootingState(BallShooterMachine ballShooterMachine) 
             : base(ballShooterMachine)
         {
@@ -31,6 +33,11 @@ namespace DisplayTest.Domain.StateMachine
         internal override void UpdateDistanceToObject(Length distance)
         {
             
+        }
+
+        internal override void ForceLaunch()
+        {
+            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

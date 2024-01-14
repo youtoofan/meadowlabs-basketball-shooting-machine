@@ -1,18 +1,11 @@
-﻿using Meadow.Foundation.Leds;
+﻿using FeatherV7.Domain.Interfaces;
+using Meadow;
+using Meadow.Foundation.Leds;
 using Meadow.Hardware;
 using Meadow.Peripherals.Leds;
 
 namespace DisplayTest.Domain.Models
 {
-    internal interface IShooterLed
-    {
-        void ShowReady();
-        void ShowLaunching();
-        void ShowBall();
-        void ShowNoBall();
-        void ShowError();
-        void ShowBooting();
-    }
 
     internal class Led : RgbPwmLed, IShooterLed
     {
@@ -23,32 +16,38 @@ namespace DisplayTest.Domain.Models
 
         public void ShowError()
         {
-            this.SetColor(Meadow.Foundation.Color.Red);
+            this.SetColor(Color.Red);
         }
 
         public void ShowBall()
         {
-            this.SetColor(Meadow.Foundation.Color.Yellow);
+            this.SetColor(Color.Yellow);
         }
 
         public void ShowLaunching()
         {
-            this.SetColor(Meadow.Foundation.Color.Green);
+            this.SetColor(Color.Green);
         }
 
         public void ShowNoBall()
         {
-            this.SetColor(Meadow.Foundation.Color.Blue);
+            this.SetColor(Color.Blue);
         }
 
         public void ShowReady()
         {
-            this.SetColor(Meadow.Foundation.Color.White);
+            this.SetColor(Color.White);
         }
 
         public void ShowBooting()
         {
-            this.SetColor(Meadow.Foundation.Color.LightPink);
+            this.SetColor(Color.LightPink);
+        }
+
+        public void StartPulse(Color color)
+        {
+            this.SetColor(color);
+            //this.StartPulse(color);
         }
     }
 }

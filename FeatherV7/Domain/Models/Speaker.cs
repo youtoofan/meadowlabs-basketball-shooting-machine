@@ -1,4 +1,5 @@
 ﻿using AsyncAwaitBestPractices;
+using FeatherV7.Domain.Interfaces;
 using Meadow.Foundation.Audio;
 using Meadow.Hardware;
 using Meadow.Units;
@@ -7,14 +8,6 @@ using System.Threading.Tasks;
 
 namespace DisplayTest.Domain.Models
 {
-    internal interface IShooterSpeaker
-    {
-        Task PlayClickAsync();
-        Task PlayBuzzAsync();
-        Task PlayOkAsync();
-        Task PlayWarningAsync();
-        Task PlayLaunchAsync();
-    }
 
     internal class Speaker : PiezoSpeaker, IShooterSpeaker
     {
