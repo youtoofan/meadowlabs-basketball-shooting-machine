@@ -7,11 +7,11 @@ using Meadow.Foundation.Sensors.Distance;
 using Meadow.Hardware;
 using DisplayTest.Domain.Models;
 using Led = DisplayTest.Domain.Models.Led;
-using Meadow.Peripherals.Sensors.Rotary;
 using Meadow.Logging;
 using FeatherV7.Domain.Models;
 using CommonFeather;
 using UnitsNet;
+using System;
 
 namespace DisplayTest
 {
@@ -57,7 +57,13 @@ namespace DisplayTest
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
             _ballShooterMachine.Start();
 
-            return Task.CompletedTask;
+            return base.Run();
+        }
+
+        public override Task OnError(Exception e)
+        {
+            Resolver.Log.Error(e);
+            return base.OnError(e);
         }
 
         public override Task Initialize()
@@ -76,7 +82,8 @@ namespace DisplayTest
                 chipSelectPin: Device.Pins.D02,
                 dcPin: Device.Pins.D01,
                 resetPin: Device.Pins.D00,
-                width: 240, height: 240);
+                width: 240, 
+                height: 240);
 
             _onboardLed = new Led(
                 redPwmPin: Device.Pins.OnboardLedRed,
@@ -88,6 +95,8 @@ namespace DisplayTest
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
             _graphics = new Display(st7789);
+            _graphics.Rotation = Meadow.Foundation.Graphics.RotationType.Default;
+
             _distanceSensor = new Vl53l0x(i2cBus, (byte)Vl53l0x.Addresses.Default);
 
             _bluetoothHandler = new BluetoothHandler(Device, _onboardLed);
