@@ -12,6 +12,7 @@ namespace DisplayTest.Domain.StateMachine
     internal class LaunchingState : State
     {
         public override string Name => "Launching";
+        private bool _isLaunching = false;
 
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -23,6 +24,9 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
+            if (_isLaunching)
+                return;
+
             _cancellationTokenSource = new CancellationTokenSource();
 
             this.BallShooterMachine.Graphics.ShowState("Launching");
@@ -40,6 +44,7 @@ namespace DisplayTest.Domain.StateMachine
             if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
             {
                 _cancellationTokenSource.Cancel();
+
                 return;
             }
         }
@@ -50,45 +55,56 @@ namespace DisplayTest.Domain.StateMachine
 
             var task = Task.Run(async () =>
             {
-                for (int i = totalSeconds ; i > 0; i--)
+                try
                 {
-                    this.BallShooterMachine.Speaker.PlayClickAsync().SafeFireAndForget();
-                    this.BallShooterMachine.Graphics.ShowCountDownSequenceScreen(i);
-                    this.BallShooterMachine.BluetoothHandler.UpdateStatus($"Launch in {i}...");
+                    _isLaunching = true;
 
-                    if (cancellationToken.IsCancellationRequested)
+                    for (int i = totalSeconds; i > 0; i--)
                     {
-                        Resolver.Log.Error("Launch was cancelled.");
+                        this.BallShooterMachine.Speaker.PlayClickAsync().SafeFireAndForget();
+                        this.BallShooterMachine.Graphics.ShowCountDownSequenceScreen(i);
+                        this.BallShooterMachine.BluetoothHandler.UpdateStatus($"Launch in {i}...");
 
-                        this.BallShooterMachine.BluetoothHandler.UpdateStatus("Launch cancelled");
-                        this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
-                        this.BallShooterMachine.Graphics.ShowCancel();
-                        this.BallShooterMachine.Led.ShowError();
-                        this.BallShooterMachine.Speaker.PlayWarningAsync().SafeFireAndForget();
-                        
-                        await Task.Delay(TimeSpan.FromSeconds(2));
-                        
-                        this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+                        if (cancellationToken.IsCancellationRequested)
+                        {
+                            Resolver.Log.Error("Launch was cancelled.");
 
-                        return;
+                            this.BallShooterMachine.BluetoothHandler.UpdateStatus("Launch cancelled");
+                            this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
+                            this.BallShooterMachine.Graphics.ShowCancel();
+                            this.BallShooterMachine.Led.ShowError();
+                            this.BallShooterMachine.Speaker.PlayWarningAsync().SafeFireAndForget();
+
+                            await Task.Delay(TimeSpan.FromSeconds(2));
+
+                            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+
+                            return;
+                        }
+
+                        await Task.Delay(TimeSpan.FromSeconds(1));
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(1));
+                    this.BallShooterMachine.BluetoothHandler.UpdateStatus("Ball away!");
+                    this.BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
+                    this.BallShooterMachine.Graphics.ShowBoom();
+                    this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
+                    this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
+
+                    Resolver.Log.Info("Launch successfull!");
                 }
+                finally
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(3));
+                    this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+                    _cancellationTokenSource.Dispose();
 
-                this.BallShooterMachine.BluetoothHandler.UpdateStatus("Ball away!");
-                this.BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
-                this.BallShooterMachine.Graphics.ShowBoom();
-                this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
-                this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
-
-                Resolver.Log.Error("Launch successfull!");
+                    _isLaunching = false;
+                }
 
             }, cancellationToken);
 
             await task;
-            await Task.Delay(TimeSpan.FromSeconds(3));
-            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
         }
 
         internal override void ForceLaunch()

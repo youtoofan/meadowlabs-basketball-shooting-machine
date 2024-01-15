@@ -88,13 +88,13 @@ namespace DisplayTest.Domain.Models
 
         internal void HandleButtonClicked()
         {
-            Resolver.Log.Debug("Button clicked");
+            Resolver.Log.Info("Button clicked");
             BluetoothHandler.RotationClicked(true);
         }
 
         internal void HandleButtonReleased()
         {
-            Resolver.Log.Debug("Button clicked");
+            Resolver.Log.Info("Button released");
             BluetoothHandler.RotationClicked(false);
         }
     }

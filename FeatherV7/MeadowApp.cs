@@ -49,6 +49,10 @@ namespace DisplayTest
             {
                 _ballShooterMachine.HandleButtonReleased();
             };
+            _rotaryEncoder.Clicked += (s, e) =>
+            {
+                _ballShooterMachine.HandleButtonClicked();
+            };
 
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
             _ballShooterMachine.Start();

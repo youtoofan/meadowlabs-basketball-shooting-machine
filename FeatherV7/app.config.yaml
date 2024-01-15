@@ -12,7 +12,7 @@ Update:
 
 HealthMetrics:
   Enabled: true
-  Interval: 15
+  Interval: 10
 
 # # Adjust the level of logging detail.
 Logging:
