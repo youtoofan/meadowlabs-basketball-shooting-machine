@@ -21,7 +21,7 @@ namespace DisplayTest.Domain.Models
         public Display(IGraphicsDisplay display) 
             : base(display)
         {
-            _timer = new Timer();
+            _timer = new Timer(1000);
             IgnoreOutOfBoundsPixels = true;
             Rotation = RotationType._270Degrees;
         }
@@ -58,8 +58,6 @@ namespace DisplayTest.Domain.Models
             this.Show();
             
             _timer.Elapsed += (s, e) => ShowCurrentTimeScreen();
-            _timer.Interval = 1000;
-
             _timer.Enabled = true;
         }
 

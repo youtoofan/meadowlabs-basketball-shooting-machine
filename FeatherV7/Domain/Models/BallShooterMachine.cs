@@ -88,6 +88,7 @@ namespace DisplayTest.Domain.Models
 
         internal void HandleButtonClicked()
         {
+            _currentState.ForceLaunch();
             Resolver.Log.Info("Button clicked");
             BluetoothHandler.RotationClicked(true);
         }

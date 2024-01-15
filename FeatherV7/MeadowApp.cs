@@ -12,6 +12,7 @@ using FeatherV7.Domain.Models;
 using CommonFeather;
 using UnitsNet;
 using System;
+using AsyncAwaitBestPractices;
 
 namespace DisplayTest
 {
@@ -23,6 +24,7 @@ namespace DisplayTest
         private Led _onboardLed;
         private Speaker _speaker;
         private Trigger _relay;
+        //private Trigger _relayBackup;
         private RotaryEncoderWithButton _rotaryEncoder;
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
@@ -41,17 +43,17 @@ namespace DisplayTest
             {
                 _ballShooterMachine.HandleRotationDirection(e.New);
             };
-            _rotaryEncoder.PressStarted += (s, e) =>
-            {
-                _ballShooterMachine.HandleButtonClicked();
-            };
-            _rotaryEncoder.PressEnded += (s, e) =>
-            {
-                _ballShooterMachine.HandleButtonReleased();
-            };
+            //_rotaryEncoder.PressStarted += (s, e) =>
+            //{
+            //    _ballShooterMachine.HandleButtonClicked();
+            //};
+            //_rotaryEncoder.PressEnded += (s, e) =>
+            //{
+            //    _ballShooterMachine.HandleButtonReleased();
+            //};
             _rotaryEncoder.Clicked += (s, e) =>
             {
-                _ballShooterMachine.HandleButtonClicked();
+                _relay.ShootAsync().SafeFireAndForget();
             };
 
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
@@ -92,6 +94,7 @@ namespace DisplayTest
 
             _speaker = new Speaker(Device.Pins.D12);
             _relay = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D05, false, OutputType.PushPull));
+            //_relayBackup = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D06, false, OutputType.PushPull));
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
             _graphics = new Display(st7789);
