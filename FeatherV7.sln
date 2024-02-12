@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.6.33829.357
@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeatherV7", "FeatherV7\Feat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MobileFeather", "MobileFeather\MobileFeather.csproj", "{FA564251-9F01-4025-A297-1B074DC4BA82}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonFeather", "CommonFeather\CommonFeather.csproj", "{5F615673-CA72-42CC-B0BB-A503E03312AC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommonFeather", "CommonFeather\CommonFeather.csproj", "{5F615673-CA72-42CC-B0BB-A503E03312AC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
