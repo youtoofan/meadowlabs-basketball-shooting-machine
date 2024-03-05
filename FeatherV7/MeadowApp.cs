@@ -13,6 +13,7 @@ using CommonFeather;
 using UnitsNet;
 using System;
 using AsyncAwaitBestPractices;
+using Meadow.Peripherals.Displays;
 
 namespace DisplayTest
 {
@@ -98,7 +99,7 @@ namespace DisplayTest
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
             _graphics = new Display(st7789);
-            _graphics.Rotation = Meadow.Foundation.Graphics.RotationType.Default;
+            _graphics.Rotation = RotationType.Default;
 
             _distanceSensor = new Vl53l0x(i2cBus, (byte)Vl53l0x.Addresses.Default);
 

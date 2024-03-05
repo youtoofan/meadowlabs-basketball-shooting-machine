@@ -146,12 +146,11 @@ namespace FeatherV7.Domain.Models
             Resolver.Log.Info("WIFI Connected");
         }
 
-        private void WifiNetworkDisconnected(INetworkAdapter sender)
+        private void WifiNetworkDisconnected(INetworkAdapter sender, NetworkDisconnectionEventArgs args)
         {
             ToggleWifiConnection.SetValue(false);
 
             ConfigFileManager.DeleteConfigFiles();
-
             WifiEnabled.Invoke(sender, false);
             BleEnabled.Invoke(sender, false);
 

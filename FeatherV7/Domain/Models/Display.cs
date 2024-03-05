@@ -1,6 +1,7 @@
 ﻿using FeatherV7.Domain.Interfaces;
 using Meadow;
 using Meadow.Foundation.Graphics;
+using Meadow.Peripherals.Displays;
 using System;
 using Timer = System.Timers.Timer;
 
@@ -18,7 +19,7 @@ namespace DisplayTest.Domain.Models
             Color.FromHex("#ff8000")
         };
 
-        public Display(IGraphicsDisplay display) 
+        public Display(IPixelDisplay display) 
             : base(display)
         {
             _timer = new Timer(1000);
