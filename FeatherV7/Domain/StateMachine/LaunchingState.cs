@@ -51,7 +51,7 @@ namespace DisplayTest.Domain.StateMachine
 
         private async Task StartCountDownSequenceAsync(CancellationToken cancellationToken)
         {
-            var totalSeconds = this.BallShooterMachine.CountDownValueInSeconds;
+            var totalSeconds = (this.BallShooterMachine.CountDownValueInSeconds);
 
             var task = Task.Run(async () =>
             {

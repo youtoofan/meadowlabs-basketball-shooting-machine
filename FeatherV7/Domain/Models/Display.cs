@@ -21,7 +21,7 @@ namespace DisplayTest.Domain.Models
                 Color.FromHex("#ff8c1a"),
                 Color.FromHex("#ff8000")
         };
-
+        private Label clockLabel;
         private Label statusLabel;
 
         public Display(IApp app, IPixelDisplay physicalDisplay, RotationType rotation = RotationType.Default, ITouchScreen touchScreen = null, DisplayTheme theme = null)
@@ -57,6 +57,20 @@ namespace DisplayTest.Domain.Models
                 VerticalAlignment = VerticalAlignment.Center,
             });
 
+            clockLabel = new Label(
+                left: 20,
+                top: -20,
+                width: this.Width - 40,
+                height: this.Height - 40)
+            {
+                Text = "",
+                TextColor = Color.Black,
+                BackColor = Color.Transparent,
+                Font = new Font8x12(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+
             statusLabel = new Label(
                 left: 20,
                 top: 50,
@@ -66,12 +80,13 @@ namespace DisplayTest.Domain.Models
                 Text = "",
                 TextColor = Color.Black,
                 BackColor = Color.Transparent,
-                Font = new Font6x8(),
+                Font = new Font12x16(),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
             this.Controls.Add(statusLabel);
+            this.Controls.Add(clockLabel);
 
             this.timer.Elapsed += (s, e) => ShowCurrentTimeScreen();
             this.timer.Enabled = true;
@@ -84,7 +99,6 @@ namespace DisplayTest.Domain.Models
 
             app.InvokeOnMainThread((o) =>
             {
-                timer.Enabled = false;
                 statusLabel.Text = "BOOOOOM!";
             });
         }
@@ -96,7 +110,6 @@ namespace DisplayTest.Domain.Models
 
             app.InvokeOnMainThread((o) =>
             {
-                timer.Enabled = false;
                 statusLabel.Text = $"CANCELLED!";
             });
         }
@@ -108,20 +121,18 @@ namespace DisplayTest.Domain.Models
 
             app.InvokeOnMainThread((o) =>
             {
-                this.timer.Enabled = false;
                 statusLabel.Text = second.ToString();
             });
         }
 
         public void ShowCurrentTimeScreen()
         {
-            if (statusLabel == null)
+            if (clockLabel == null)
                 return;
 
             app.InvokeOnMainThread((o) =>
             {
-                this.timer.Enabled = true;
-                statusLabel.Text = $"{DateTime.Now:T}";
+                clockLabel.Text = $"{DateTime.Now:T}";
             });
         }
 
@@ -132,9 +143,7 @@ namespace DisplayTest.Domain.Models
 
             app.InvokeOnMainThread((o) =>
             {
-                timer.Enabled = false;
                 statusLabel.Text = $"{duration.TotalSeconds} seconds";
-                timer.Enabled = true;
             });
         }
 
