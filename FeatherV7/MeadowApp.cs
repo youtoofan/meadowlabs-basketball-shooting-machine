@@ -35,7 +35,7 @@ namespace DisplayTest
 
             _ballShooterMachine = new BallShooterMachine(_graphics, _speaker, _relay, _onboardLed, _bluetoothHandler);
 
-            var consumer = Vl53l0x.CreateObserver(
+            var distanceConsumer = Vl53l0x.CreateObserver(
                 handler: result =>
                 {
                     _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(result.New.Centimeters));
@@ -53,7 +53,7 @@ namespace DisplayTest
                 _relay.ShootAsync().SafeFireAndForget();
             };
 
-            _distanceSensor.Subscribe(consumer);
+            _distanceSensor.Subscribe(distanceConsumer);
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
 
             _ballShooterMachine.Start();
