@@ -1,6 +1,8 @@
 ﻿using FeatherV7.Domain.Interfaces;
 using Meadow;
 using Meadow.Foundation.Graphics;
+using Meadow.Foundation.Graphics.MicroLayout;
+using Meadow.Hardware;
 using Meadow.Peripherals.Displays;
 using System;
 using Timer = System.Timers.Timer;
@@ -8,181 +10,143 @@ using Timer = System.Timers.Timer;
 namespace DisplayTest.Domain.Models
 {
 
-    internal class Display : MicroGraphics, IShooterDisplay
+    internal class Display : DisplayScreen, IShooterDisplay
     {
-        private readonly Timer _timer;
+        private readonly IApp app;
+        private readonly Timer timer;
         private readonly Color[] colors = new Color[4]
         {
-            Color.FromHex("#ffa64d"),
-            Color.FromHex("#ff9933"),
-            Color.FromHex("#ff8c1a"),
-            Color.FromHex("#ff8000")
+                Color.FromHex("#ffa64d"),
+                Color.FromHex("#ff9933"),
+                Color.FromHex("#ff8c1a"),
+                Color.FromHex("#ff8000")
         };
 
-        public Display(IPixelDisplay display) 
-            : base(display)
+        private Label statusLabel;
+
+        public Display(IApp app, IPixelDisplay physicalDisplay, RotationType rotation = RotationType.Default, ITouchScreen touchScreen = null, DisplayTheme theme = null)
+            : base(physicalDisplay, rotation, touchScreen, theme)
         {
-            _timer = new Timer(1000);
-            IgnoreOutOfBoundsPixels = true;
-            Rotation = RotationType._270Degrees;
+            this.app = app;
+            this.timer = new Timer(1000);
+            this.BackgroundColor = colors[0];
         }
 
         public void Init()
         {
-            this.Clear(true);
-
-            int radius = 225;
-            int originX = this.Width / 2;
-            int originY = this.Height / 2 + 100;
-
-            this.Stroke = 3;
-            for (int i = 1; i < colors.Length; i++)
+            this.Controls.Add(new Circle(
+                centerX: this.Width / 2,
+                centerY: this.Height / 2,
+                radius: this.Height / 2)
             {
-                this.DrawCircle
-                (
-                    centerX: originX,
-                    centerY: originY,
-                    radius: radius,
-                    color: colors[i - 1],
-                    filled: true
-                );
+                ForeColor = colors[3],
+                IsFilled = true
+            });
 
-                radius -= 20;
-            }
+            this.Controls.Add(new Label(
+                left: 20,
+                top: 20,
+                width: this.Width - 40,
+                height: this.Height - 40)
+            {
+                Text = "SHOOTING MACHINE V1",
+                TextColor = Color.Black,
+                BackColor = Color.Transparent,
+                Font = new Font12x20(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            });
 
-            this.DrawLine(0, 220, 239, 220, Color.Black);
-            this.DrawLine(0, 230, 239, 230, Color.Black);
+            statusLabel = new Label(
+                left: 20,
+                top: 50,
+                width: this.Width - 40,
+                height: this.Height - 40)
+            {
+                Text = "",
+                TextColor = Color.Black,
+                BackColor = Color.Transparent,
+                Font = new Font6x8(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
 
-            this.CurrentFont = new Font12x20();
-            this.DrawText(5, 70, "SHOOTING MACHINE V1", Color.Black);
+            this.Controls.Add(statusLabel);
 
-            this.Show();
-            
-            _timer.Elapsed += (s, e) => ShowCurrentTimeScreen();
-            _timer.Enabled = true;
-        }
-
-        public void ShowCurrentTimeScreen()
-        {
-            _timer.Enabled = true;
-
-            this.DrawRectangle(
-                       x: 0, y: 160,
-                       width: 500,
-                       height: 50,
-                       color: colors[^1],
-                       filled: true);
-
-            this.DrawText(
-                x: 20, y: 160,
-                text: $"{DateTime.Now:T}",
-                color: Color.White,
-                scaleFactor: ScaleFactor.X2);
-
-            this.Show();
-        }
-
-        public void ShowCountDownSequenceScreen(int second)
-        {
-            _timer.Enabled = false;
-
-            if (second <= 0)
-                return;
-
-            this.DrawRectangle(
-                x: 0, y: 160,
-                width: 500,
-                height: 50,
-                color: colors[^1],
-                filled: true);
-
-            this.DrawText(
-                x: 20, y: 160,
-                text: $"{second} sec...",
-                color: Color.White,
-                scaleFactor: ScaleFactor.X2);
-
-            this.Show();
-
+            this.timer.Elapsed += (s, e) => ShowCurrentTimeScreen();
+            this.timer.Enabled = true;
         }
 
         public void ShowBoom()
         {
-            _timer.Enabled = false;
+            if (statusLabel == null)
+                return;
 
-            this.DrawRectangle(
-                x: 0, y: 160,
-                width: 500,
-                height: 50,
-                color: colors[^1],
-                filled: true);
-
-            this.DrawText(
-                x: 20, y: 160,
-                text: $"BOOM!",
-                color: Color.Red,
-                scaleFactor: ScaleFactor.X3);
-
-            this.Show();
+            app.InvokeOnMainThread((o) =>
+            {
+                timer.Enabled = false;
+                statusLabel.Text = "BOOOOOM!";
+            });
         }
 
         public void ShowCancel()
         {
-            _timer.Enabled = false;
+            if (statusLabel == null)
+                return;
 
-            this.DrawRectangle(
-                x: 0, y: 160,
-                width: 500,
-                height: 50,
-                color: colors[^1],
-                filled: true);
+            app.InvokeOnMainThread((o) =>
+            {
+                timer.Enabled = false;
+                statusLabel.Text = $"CANCELLED!";
+            });
+        }
 
-            this.DrawText(
-                x: 20, y: 160,
-                text: $"CANCELLED!",
-                color: Color.LightBlue,
-                scaleFactor: ScaleFactor.X3);
+        public void ShowCountDownSequenceScreen(int second)
+        {
+            if (statusLabel == null)
+                return;
 
-            this.Show();
+            app.InvokeOnMainThread((o) =>
+            {
+                this.timer.Enabled = false;
+                statusLabel.Text = second.ToString();
+            });
+        }
+
+        public void ShowCurrentTimeScreen()
+        {
+            if (statusLabel == null)
+                return;
+
+            app.InvokeOnMainThread((o) =>
+            {
+                this.timer.Enabled = true;
+                statusLabel.Text = $"{DateTime.Now:T}";
+            });
         }
 
         public void ShowRotatorScreen(TimeSpan duration)
         {
-            _timer.Enabled = false;
+            if (statusLabel == null)
+                return;
 
-            this.DrawRectangle(
-                       x: 0, y: 160,
-                       width: 500,
-                       height: 50,
-                       color: colors[^1],
-                       filled: true);
-
-            this.DrawText(
-                x: 20, y: 160,
-                text: $"{duration.TotalSeconds} seconds",
-                color: Color.White,
-                scaleFactor: ScaleFactor.X2);
-
-            this.Show();
-
-            _timer.Enabled = true;
+            app.InvokeOnMainThread((o) =>
+            {
+                timer.Enabled = false;
+                statusLabel.Text = $"{duration.TotalSeconds} seconds";
+                timer.Enabled = true;
+            });
         }
 
         public void ShowState(string state)
         {
-            if (string.IsNullOrEmpty(state))
+            if (statusLabel == null)
                 return;
 
-            this.DrawRectangle(
-                       x: 0, y: 130,
-                       width: 500,
-                       height: 30,
-                       color: colors[^1],
-                       filled: true);
-
-            this.DrawText(20, 130, $"--> {state.ToUpper()} <--", Color.White);
-
-            this.Show();
+            app.InvokeOnMainThread((o) =>
+            {
+                statusLabel.Text = state;
+            });
         }
     }
 }

@@ -25,7 +25,6 @@ namespace DisplayTest
         private Led _onboardLed;
         private Speaker _speaker;
         private Trigger _relay;
-        //private Trigger _relayBackup;
         private RotaryEncoderWithButton _rotaryEncoder;
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
@@ -36,28 +35,27 @@ namespace DisplayTest
 
             _ballShooterMachine = new BallShooterMachine(_graphics, _speaker, _relay, _onboardLed, _bluetoothHandler);
 
-            _distanceSensor.Updated += (s, e) =>
-            {
-                _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(e.New.Centimeters));
-            };
+            var consumer = Vl53l0x.CreateObserver(
+                handler: result =>
+                {
+                    _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(result.New.Centimeters));
+                },
+                filter: null
+            );
+
             _rotaryEncoder.Rotated += (s, e) =>
             {
                 _ballShooterMachine.HandleRotationDirection(e.New);
             };
-            //_rotaryEncoder.PressStarted += (s, e) =>
-            //{
-            //    _ballShooterMachine.HandleButtonClicked();
-            //};
-            //_rotaryEncoder.PressEnded += (s, e) =>
-            //{
-            //    _ballShooterMachine.HandleButtonReleased();
-            //};
+
             _rotaryEncoder.Clicked += (s, e) =>
             {
                 _relay.ShootAsync().SafeFireAndForget();
             };
 
+            _distanceSensor.Subscribe(consumer);
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
+
             _ballShooterMachine.Start();
 
             return base.Run();
@@ -78,7 +76,7 @@ namespace DisplayTest
 #endif
             Resolver.Log.Info("Initialize...");
 
-            var i2cBus = Device.CreateI2cBus(I2cBusSpeed.FastPlus);
+            var i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
 
             var st7789 = new St7789(
                 spiBus: Device.CreateSpiBus(),
@@ -98,14 +96,14 @@ namespace DisplayTest
             //_relayBackup = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D06, false, OutputType.PushPull));
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
-            _graphics = new Display(st7789);
-            _graphics.Rotation = RotationType.Default;
+            _graphics = new Display(this, st7789, RotationType._270Degrees);
+            //_graphics.Rotation = RotationType.Default;
 
-            _distanceSensor = new Vl53l0x(i2cBus, (byte)Vl53l0x.Addresses.Default);
+            _distanceSensor = new Vl53l0x(i2cBus);
 
-            _bluetoothHandler = new BluetoothHandler(Device, _onboardLed);
+            _bluetoothHandler = new BluetoothHandler(_onboardLed);
             _bluetoothHandler.Initialize();
-
+            
             return base.Initialize();
         }
     }

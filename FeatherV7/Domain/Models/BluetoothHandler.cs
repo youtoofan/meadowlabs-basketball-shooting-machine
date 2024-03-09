@@ -8,6 +8,7 @@ using Meadow.Gateways.Bluetooth;
 using Meadow.Hardware;
 using UnitsNet;
 using System;
+using DisplayTest;
 
 namespace FeatherV7.Domain.Models
 {
@@ -20,7 +21,6 @@ namespace FeatherV7.Domain.Models
         public event EventHandler<bool> ButtonClicked = delegate { };
         public event EventHandler<bool> Launched = delegate { };
 
-        private readonly F7FeatherV2 device;
         private readonly IShooterLed led;
         
         private IDefinition bleTreeDefinition;
@@ -41,20 +41,19 @@ namespace FeatherV7.Domain.Models
         
         private IWiFiNetworkAdapter wifi;
 
-        public BluetoothHandler(F7FeatherV2 device, IShooterLed led)
+        public BluetoothHandler(IShooterLed led)
         {
-            this.device = device;
             this.led = led;
         }
 
         public void Initialize()
         {
             bleTreeDefinition = GetDefinition();
-            device.BluetoothAdapter.StartBluetoothServer(bleTreeDefinition);
+            MeadowApp.Device.BluetoothAdapter.StartBluetoothServer(bleTreeDefinition);
 
             SetupBluetoothDataReceiveHandlers();
 
-            wifi = device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
+            wifi = MeadowApp.Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
             wifi.NetworkConnected += WifiNetworkConnected;
             wifi.NetworkDisconnected += WifiNetworkDisconnected;
         }
@@ -154,7 +153,7 @@ namespace FeatherV7.Domain.Models
             WifiEnabled.Invoke(sender, false);
             BleEnabled.Invoke(sender, false);
 
-            device.PlatformOS.Reset();
+            MeadowApp.Device.PlatformOS.Reset();
         }
 
         private Definition GetDefinition()
