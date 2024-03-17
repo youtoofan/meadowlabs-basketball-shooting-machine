@@ -18,7 +18,7 @@
     <PackageReference Include="Meadow.Foundation.Sensors.Distance.Vl53l0x" Version="1.9.0.3" />
     <PackageReference Include="Meadow.Logging" Version="1.9.0.3" />
     <PackageReference Include="Meadow.Logging.LogProviders" Version="1.9.0.3" />
-    <PackageReference Include="UnitsNet" Version="5.48.0" />
+    <PackageReference Include="UnitsNet" Version="5.49.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonFeather\CommonFeather.csproj" />
