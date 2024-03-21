@@ -13,7 +13,7 @@ namespace DisplayTest.Domain.Models
     internal class Display : DisplayScreen, IShooterDisplay
     {
         private readonly IApp app;
-        private readonly Timer timer;
+        private readonly PeriodicTimer timer;
         private readonly Color[] colors = new Color[4]
         {
                 Color.FromHex("#ffa64d"),
