@@ -29,7 +29,7 @@ namespace CommonFeather
 
         public class Sensors
         {
-            public static readonly Length MINIMUM_SENSOR_DISTANCE = Length.FromCentimeters(10);
+            public static readonly Length MINIMUM_SENSOR_DISTANCE = Length.FromCentimeters(15);
             public static readonly int MINIMUM_SENSOR_DISTANCE_COUNTS = 5;
             public static readonly int MINIMUM_COUNTDOWN_SECONDS = 1;
             public static readonly TimeSpan SENSOR_DISTANCE_READ_FREQUENCY = TimeSpan.FromMilliseconds(500);

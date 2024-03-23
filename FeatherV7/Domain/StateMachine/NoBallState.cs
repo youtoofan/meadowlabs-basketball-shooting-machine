@@ -29,6 +29,8 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void UpdateDistanceToObject(Length distance)
         {
+            this.BallShooterMachine.Graphics.ShowDistanceScreen(distance);
+
             if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
                 return;
 

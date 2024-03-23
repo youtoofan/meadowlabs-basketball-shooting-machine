@@ -1,4 +1,5 @@
 ﻿using System;
+using UnitsNet;
 
 namespace FeatherV7.Domain.Interfaces
 {
@@ -11,5 +12,6 @@ namespace FeatherV7.Domain.Interfaces
         void ShowCancel();
         void ShowCountDownSequenceScreen(int second);
         void ShowRotatorScreen(TimeSpan duration);
+        void ShowDistanceScreen(Length distance);
     }
 }

@@ -6,6 +6,7 @@ using Meadow.Hardware;
 using Meadow.Peripherals.Displays;
 using System;
 using System.Threading;
+using UnitsNet;
 
 namespace DisplayTest.Domain.Models
 {
@@ -15,6 +16,7 @@ namespace DisplayTest.Domain.Models
         private Label clockLabel;
         private Label statusLabel;
         private Label counterLabel;
+        private Label distanceLabel;
         private readonly IApp app;
         private readonly Color[] colors = new Color[4]
         {
@@ -23,8 +25,6 @@ namespace DisplayTest.Domain.Models
                 Color.FromHex("#ff8c1a"),
                 Color.FromHex("#ff8000")
         };
-        
-
         public Display(IApp app, IPixelDisplay physicalDisplay, RotationType rotation = RotationType.Default, ITouchScreen touchScreen = null, DisplayTheme theme = null)
             : base(physicalDisplay, rotation, touchScreen, theme)
         {
@@ -99,9 +99,24 @@ namespace DisplayTest.Domain.Models
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
+            distanceLabel = new Label(
+                left: 20,
+                top: 70,
+                width: this.Width - 40,
+                height: this.Height - 40)
+            {
+                Text = "",
+                TextColor = Color.Black,
+                BackColor = Color.Transparent,
+                Font = new Font8x12(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+
             this.Controls.Add(statusLabel);
             this.Controls.Add(clockLabel);
             this.Controls.Add(counterLabel);
+            this.Controls.Add(distanceLabel);
 
             var timer = new Timer(ShowCurrentTimeScreen, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1));
         }
@@ -159,6 +174,17 @@ namespace DisplayTest.Domain.Models
             app.InvokeOnMainThread((o) =>
             {
                 counterLabel.Text = $"{duration.TotalSeconds} seconds";
+            });
+        }
+
+        public void ShowDistanceScreen(Length distance)
+        {
+            if (distanceLabel == null)
+                return;
+
+            app.InvokeOnMainThread((o) =>
+            {
+                distanceLabel.Text = $"{distance.Centimeters} cm";
             });
         }
 

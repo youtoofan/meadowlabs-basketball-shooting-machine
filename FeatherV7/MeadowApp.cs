@@ -20,6 +20,7 @@ namespace DisplayTest
     // Change F7CoreComputeV2 to F7FeatherV2 (or F7FeatherV1) for Feather boards
     public sealed class MeadowApp : App<F7FeatherV2>, IDisposable
     {
+        private const int WaitIntervalInSeconds = 10;
         private Display _graphics;
         private BallShooterMachine _ballShooterMachine;
         private II2cBus _i2cBus;
@@ -31,8 +32,10 @@ namespace DisplayTest
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
         private bool disposedValue;
+        private DateTimeOffset _lastUpdate;
+        private bool _isRunning;
 
-        public override Task Run()
+        public override async Task Run()
         {
             Resolver.Log.Info("Run...");
 
@@ -41,6 +44,7 @@ namespace DisplayTest
             var distanceConsumer = Vl53l0x.CreateObserver(
                 handler: result =>
                 {
+                    _lastUpdate = DateTimeOffset.Now;
                     _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(result.New.Centimeters));
                 },
                 filter: null
@@ -59,9 +63,23 @@ namespace DisplayTest
             _distanceSensor.Subscribe(distanceConsumer);
             _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
 
+            _isRunning = true;
             _ballShooterMachine.Start();
 
-            return base.Run();
+            while(_isRunning)
+            {
+                if(_lastUpdate.Add(TimeSpan.FromSeconds(WaitIntervalInSeconds)) < DateTimeOffset.Now)
+                {
+                    Resolver.Log.Warn("Distance sensor stopped working");
+
+                    _distanceSensor.StopUpdating();
+                    _distanceSensor.StartUpdating();
+
+                    Resolver.Log.Warn("Request to start updating sensor");
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(WaitIntervalInSeconds));
+            }
         }
 
         public override Task OnError(Exception e)
@@ -96,13 +114,10 @@ namespace DisplayTest
 
             _speaker = new Speaker(Device.Pins.D12);
             _relay = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D05, false, OutputType.PushPull));
-            //_relayBackup = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D06, false, OutputType.PushPull));
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
-
             _graphics = new Display(this, _st7789, RotationType._270Degrees);
-
             _distanceSensor = new Vl53l0x(_i2cBus);
-
+            
             _bluetoothHandler = new BluetoothHandler(_onboardLed);
             _bluetoothHandler.Initialize();
             
@@ -111,6 +126,10 @@ namespace DisplayTest
 
         private void Dispose(bool disposing)
         {
+            Resolver.Log.Info("Disposing...");
+
+            _isRunning = false;
+
             if (!disposedValue)
             {
                 if (disposing)
