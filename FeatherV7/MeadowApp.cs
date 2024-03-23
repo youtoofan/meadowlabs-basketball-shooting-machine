@@ -32,7 +32,7 @@ namespace DisplayTest
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
         private bool disposedValue;
-        private DateTimeOffset _lastUpdate;
+        private DateTimeOffset _lastUpdate = DateTime.Now;
         private bool _isRunning;
 
         public override async Task Run()
@@ -61,7 +61,7 @@ namespace DisplayTest
             _rotaryEncoder.PressEnded += (s, e) => {  };
 
             _distanceSensor.Subscribe(distanceConsumer);
-            _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
+            
 
             _isRunning = true;
             _ballShooterMachine.Start();
@@ -70,10 +70,10 @@ namespace DisplayTest
             {
                 if(_lastUpdate.Add(TimeSpan.FromSeconds(WaitIntervalInSeconds)) < DateTimeOffset.Now)
                 {
-                    Resolver.Log.Warn("Distance sensor stopped working");
+                    Resolver.Log.Warn("Distance sensor not updating");
 
                     _distanceSensor.StopUpdating();
-                    _distanceSensor.StartUpdating();
+                    _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
 
                     Resolver.Log.Warn("Request to start updating sensor");
                 }
