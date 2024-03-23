@@ -35,7 +35,43 @@ namespace DisplayTest
         private DateTimeOffset _lastUpdate = DateTime.Now;
         private bool _isRunning;
 
-        public override async Task Run()
+        public override Task Initialize()
+        {
+#if !DEBUG
+            var cloudLogger = new CloudLogger();
+            Resolver.Log.AddProvider(cloudLogger);
+            Resolver.Services.Add(cloudLogger);
+#endif
+            Resolver.Log.Info("Initialize...");
+
+            _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
+
+            _st7789 = new St7789(
+                spiBus: Device.CreateSpiBus(),
+                chipSelectPin: Device.Pins.D02,
+                dcPin: Device.Pins.D01,
+                resetPin: Device.Pins.D00,
+                width: 240,
+                height: 240);
+
+            _onboardLed = new Led(
+                redPwmPin: Device.Pins.OnboardLedRed,
+                greenPwmPin: Device.Pins.OnboardLedGreen,
+                bluePwmPin: Device.Pins.OnboardLedBlue);
+
+            _speaker = new Speaker(Device.Pins.D12);
+            _relay = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D05, false, OutputType.PushPull));
+            _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
+            _graphics = new Display(this, _st7789, RotationType._270Degrees);
+            _distanceSensor = new Vl53l0x(_i2cBus);
+
+            _bluetoothHandler = new BluetoothHandler(_onboardLed);
+            _bluetoothHandler.Initialize();
+
+            return base.Initialize();
+        }
+
+        public override Task Run()
         {
             Resolver.Log.Info("Run...");
 
@@ -61,67 +97,35 @@ namespace DisplayTest
             _rotaryEncoder.PressEnded += (s, e) => {  };
 
             _distanceSensor.Subscribe(distanceConsumer);
-            
-
-            _isRunning = true;
             _ballShooterMachine.Start();
 
-            while(_isRunning)
+            _isRunning = true;
+
+            _ = Task.Run(async () =>
             {
-                if(_lastUpdate.Add(TimeSpan.FromSeconds(WaitIntervalInSeconds)) < DateTimeOffset.Now)
+                while (_isRunning)
                 {
-                    Resolver.Log.Warn("Distance sensor not updating");
+                    if (_lastUpdate.Add(TimeSpan.FromSeconds(WaitIntervalInSeconds)) < DateTimeOffset.Now)
+                    {
+                        Resolver.Log.Warn("Distance sensor not updating");
 
-                    _distanceSensor.StopUpdating();
-                    _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
+                        _distanceSensor.StopUpdating();
+                        _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
 
-                    Resolver.Log.Warn("Request to start updating sensor");
+                        Resolver.Log.Warn("Request to start updating sensor");
+                    }
+
+                    await Task.Delay(TimeSpan.FromSeconds(WaitIntervalInSeconds));
                 }
+            });
 
-                await Task.Delay(TimeSpan.FromSeconds(WaitIntervalInSeconds));
-            }
+            return base.Run();
         }
 
         public override Task OnError(Exception e)
         {
             Resolver.Log.Error(e);
             return base.OnError(e);
-        }
-
-        public override Task Initialize()
-        {
-#if !DEBUG
-            var cloudLogger = new CloudLogger();
-            Resolver.Log.AddProvider(cloudLogger);
-            Resolver.Services.Add(cloudLogger);
-#endif
-            Resolver.Log.Info("Initialize...");
-
-            _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
-
-            _st7789 = new St7789(
-                spiBus: Device.CreateSpiBus(),
-                chipSelectPin: Device.Pins.D02,
-                dcPin: Device.Pins.D01,
-                resetPin: Device.Pins.D00,
-                width: 240, 
-                height: 240);
-
-            _onboardLed = new Led(
-                redPwmPin: Device.Pins.OnboardLedRed,
-                greenPwmPin: Device.Pins.OnboardLedGreen,
-                bluePwmPin: Device.Pins.OnboardLedBlue);
-
-            _speaker = new Speaker(Device.Pins.D12);
-            _relay = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D05, false, OutputType.PushPull));
-            _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
-            _graphics = new Display(this, _st7789, RotationType._270Degrees);
-            _distanceSensor = new Vl53l0x(_i2cBus);
-            
-            _bluetoothHandler = new BluetoothHandler(_onboardLed);
-            _bluetoothHandler.Initialize();
-            
-            return base.Initialize();
         }
 
         private void Dispose(bool disposing)

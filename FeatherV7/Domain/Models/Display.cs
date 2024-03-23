@@ -49,7 +49,7 @@ namespace DisplayTest.Domain.Models
                 width: this.Width - 40,
                 height: this.Height - 40)
             {
-                Text = "SHOOTING MACHINE V1",
+                Text = "SHOOTING MACHINE V2",
                 TextColor = Color.Black,
                 BackColor = Color.Transparent,
                 Font = new Font12x20(),
@@ -101,7 +101,7 @@ namespace DisplayTest.Domain.Models
 
             distanceLabel = new Label(
                 left: 20,
-                top: 70,
+                top: 80,
                 width: this.Width - 40,
                 height: this.Height - 40)
             {
@@ -141,6 +141,7 @@ namespace DisplayTest.Domain.Models
             app.InvokeOnMainThread((o) =>
             {
                 statusLabel.Text = $"CANCELLED!";
+                counterLabel.Text = string.Empty;
             });
         }
 
