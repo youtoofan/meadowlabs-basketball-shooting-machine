@@ -6,7 +6,7 @@ namespace FeatherV7.Domain.Interfaces
     {
         void Init();
         void ShowState(string state);
-        void ShowCurrentTimeScreen();
+        void ShowCurrentTimeScreen(object state);
         void ShowBoom();
         void ShowCancel();
         void ShowCountDownSequenceScreen(int second);

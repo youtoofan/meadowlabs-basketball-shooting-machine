@@ -5,15 +5,17 @@ using Meadow.Foundation.Graphics.MicroLayout;
 using Meadow.Hardware;
 using Meadow.Peripherals.Displays;
 using System;
-using Timer = System.Timers.Timer;
+using System.Threading;
 
 namespace DisplayTest.Domain.Models
 {
 
     internal class Display : DisplayScreen, IShooterDisplay
     {
+        private Label clockLabel;
+        private Label statusLabel;
+        private Label counterLabel;
         private readonly IApp app;
-        private readonly PeriodicTimer timer;
         private readonly Color[] colors = new Color[4]
         {
                 Color.FromHex("#ffa64d"),
@@ -21,14 +23,12 @@ namespace DisplayTest.Domain.Models
                 Color.FromHex("#ff8c1a"),
                 Color.FromHex("#ff8000")
         };
-        private Label clockLabel;
-        private Label statusLabel;
+        
 
         public Display(IApp app, IPixelDisplay physicalDisplay, RotationType rotation = RotationType.Default, ITouchScreen touchScreen = null, DisplayTheme theme = null)
             : base(physicalDisplay, rotation, touchScreen, theme)
         {
             this.app = app;
-            this.timer = new Timer(1000);
             this.BackgroundColor = colors[0];
         }
 
@@ -73,7 +73,7 @@ namespace DisplayTest.Domain.Models
 
             statusLabel = new Label(
                 left: 20,
-                top: 50,
+                top: -50,
                 width: this.Width - 40,
                 height: this.Height - 40)
             {
@@ -85,11 +85,25 @@ namespace DisplayTest.Domain.Models
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
+            counterLabel = new Label(
+                left: 20,
+                top: 50,
+                width: this.Width - 40,
+                height: this.Height - 40)
+            {
+                Text = "",
+                TextColor = Color.Black,
+                BackColor = Color.Transparent,
+                Font = new Font12x20(),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                VerticalAlignment = VerticalAlignment.Center,
+            };
+
             this.Controls.Add(statusLabel);
             this.Controls.Add(clockLabel);
+            this.Controls.Add(counterLabel);
 
-            this.timer.Elapsed += (s, e) => ShowCurrentTimeScreen();
-            this.timer.Enabled = true;
+            var timer = new Timer(ShowCurrentTimeScreen, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1));
         }
 
         public void ShowBoom()
@@ -100,6 +114,7 @@ namespace DisplayTest.Domain.Models
             app.InvokeOnMainThread((o) =>
             {
                 statusLabel.Text = "BOOOOOM!";
+                counterLabel.Text = string.Empty;
             });
         }
 
@@ -116,16 +131,16 @@ namespace DisplayTest.Domain.Models
 
         public void ShowCountDownSequenceScreen(int second)
         {
-            if (statusLabel == null)
+            if (counterLabel == null)
                 return;
 
             app.InvokeOnMainThread((o) =>
             {
-                statusLabel.Text = second.ToString();
+                counterLabel.Text = $"T-minus {second}";
             });
         }
 
-        public void ShowCurrentTimeScreen()
+        public void ShowCurrentTimeScreen(object state)
         {
             if (clockLabel == null)
                 return;
@@ -138,12 +153,12 @@ namespace DisplayTest.Domain.Models
 
         public void ShowRotatorScreen(TimeSpan duration)
         {
-            if (statusLabel == null)
+            if (counterLabel == null)
                 return;
 
             app.InvokeOnMainThread((o) =>
             {
-                statusLabel.Text = $"{duration.TotalSeconds} seconds";
+                counterLabel.Text = $"{duration.TotalSeconds} seconds";
             });
         }
 

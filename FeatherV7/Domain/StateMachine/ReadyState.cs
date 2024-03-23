@@ -21,7 +21,7 @@ namespace DisplayTest.Domain.StateMachine
         {
             this.BallShooterMachine.Graphics.ShowState("Ready");
             this.BallShooterMachine.Led.ShowReady();
-            this.BallShooterMachine.Graphics.ShowCurrentTimeScreen();
+            this.BallShooterMachine.Graphics.ShowCurrentTimeScreen(null);
             this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
         }
 
