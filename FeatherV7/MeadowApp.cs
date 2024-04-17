@@ -19,13 +19,14 @@ using System;
 using AsyncAwaitBestPractices;
 using Meadow.Peripherals.Displays;
 using System.Diagnostics;
+using Meadow.Foundation.Relays;
 
 namespace DisplayTest
 {
     // Change F7CoreComputeV2 to F7FeatherV2 (or F7FeatherV1) for Feather boards
     public sealed class MeadowApp : App<F7FeatherV2>, IDisposable
     {
-        private const int WaitIntervalInSeconds = 10;
+        private const int _waitIntervalInSeconds = 10;
         private Display _graphics;
         private BallShooterMachine _ballShooterMachine;
         private II2cBus _i2cBus;
@@ -36,7 +37,7 @@ namespace DisplayTest
         private RotaryEncoderWithButton _rotaryEncoder;
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
-        private bool disposedValue;
+        private bool _disposedValue;
         private DateTimeOffset _lastUpdate = DateTime.Now;
         private bool _isRunning;
 
@@ -44,39 +45,12 @@ namespace DisplayTest
         {
             InitLogging();
 
-            Resolver.Log.Info("Initialize...");
-
             RegisterUpdateService();
 
-            _speaker = new Speaker(Device.Pins.D12);
-            _relay = new Trigger(Device.CreateDigitalOutputPort(Device.Pins.D05, false, OutputType.PushPull));
-
-            _st7789 = new St7789(
-                spiBus: Device.CreateSpiBus(),
-                chipSelectPin: Device.Pins.D02,
-                dcPin: Device.Pins.D01,
-                resetPin: Device.Pins.D00,
-                width: 240,
-                height: 240);
-
-            _onboardLed = new Led(
-                redPwmPin: Device.Pins.OnboardLedRed,
-                greenPwmPin: Device.Pins.OnboardLedGreen,
-                bluePwmPin: Device.Pins.OnboardLedBlue);
-            
-            _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
-            _graphics = new Display(this, _st7789, RotationType._180Degrees);
-
-            _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
-            _distanceSensor = new Vl53l0x(_i2cBus);
-
-            _bluetoothHandler = new BluetoothHandler(_onboardLed);
-            _bluetoothHandler.Initialize();
+            InitDevices();
 
             return base.Initialize();
         }
-
-        
 
         public override Task Run()
         {
@@ -101,7 +75,11 @@ namespace DisplayTest
                 _ballShooterMachine.HandleRotationDirection(e.New);
             };
 
-            _rotaryEncoder.PressStarted += (s, e) => { _relay.ShootAsync().SafeFireAndForget(); };
+            _rotaryEncoder.PressStarted += (s, e) =>
+            {
+                _relay.ShootAsync().SafeFireAndForget();
+            };
+
             _rotaryEncoder.LongClicked += (s, e) => {  };
             _rotaryEncoder.Clicked += (s, e) => {  };
             _rotaryEncoder.PressEnded += (s, e) => {  };
@@ -115,7 +93,7 @@ namespace DisplayTest
             {
                 while (_isRunning)
                 {
-                    if (_lastUpdate.Add(TimeSpan.FromSeconds(WaitIntervalInSeconds)) < DateTimeOffset.Now)
+                    if (_lastUpdate.Add(TimeSpan.FromSeconds(_waitIntervalInSeconds)) < DateTimeOffset.Now)
                     {
                         Resolver.Log.Warn("Distance sensor not updating");
 
@@ -125,7 +103,7 @@ namespace DisplayTest
                         Resolver.Log.Warn("Request to start updating sensor");
                     }
 
-                    await Task.Delay(TimeSpan.FromSeconds(WaitIntervalInSeconds));
+                    await Task.Delay(TimeSpan.FromSeconds(_waitIntervalInSeconds));
                 }
             });
 
@@ -144,6 +122,8 @@ namespace DisplayTest
             var cloudLogger = new CloudLogger();
             Resolver.Log.AddProvider(cloudLogger);
             Resolver.Services.Add(cloudLogger);
+
+            Resolver.Log.Info("Initialize logging");
         }
 
         [Conditional("RELEASE")]
@@ -185,6 +165,36 @@ namespace DisplayTest
             };
         }
 
+        private void InitDevices()
+        {
+            Resolver.Log.Info("Initialize devices");
+
+            _speaker = new Speaker(Device.Pins.D12);
+            _relay = new Trigger(Device.Pins.D06);
+
+            _st7789 = new St7789(
+                spiBus: Device.CreateSpiBus(),
+                chipSelectPin: Device.Pins.D02,
+                dcPin: Device.Pins.D01,
+                resetPin: Device.Pins.D00,
+                width: 240,
+                height: 240);
+
+            _onboardLed = new Led(
+                redPwmPin: Device.Pins.OnboardLedRed,
+                greenPwmPin: Device.Pins.OnboardLedGreen,
+                bluePwmPin: Device.Pins.OnboardLedBlue);
+
+            _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
+            _graphics = new Display(this, _st7789, RotationType._180Degrees);
+
+            _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
+            _distanceSensor = new Vl53l0x(_i2cBus);
+
+            _bluetoothHandler = new BluetoothHandler(_onboardLed);
+            _bluetoothHandler.Initialize();
+        }
+
         #region Dispose
 
         private void Dispose(bool disposing)
@@ -193,7 +203,7 @@ namespace DisplayTest
 
             _isRunning = false;
 
-            if (!disposedValue)
+            if (!_disposedValue)
             {
                 if (disposing)
                 {
@@ -204,7 +214,7 @@ namespace DisplayTest
                     _st7789.Dispose();
                 }
 
-                disposedValue = true;
+                _disposedValue = true;
             }
         }
 
