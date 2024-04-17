@@ -1,4 +1,8 @@
-﻿using Meadow;
+﻿#if !DEBUG
+#define RELEASE
+#endif
+
+using Meadow;
 using Meadow.Devices;
 using Meadow.Foundation.Displays;
 using System.Threading.Tasks;
@@ -14,6 +18,7 @@ using UnitsNet;
 using System;
 using AsyncAwaitBestPractices;
 using Meadow.Peripherals.Displays;
+using System.Diagnostics;
 
 namespace DisplayTest
 {
@@ -37,11 +42,8 @@ namespace DisplayTest
 
         public override Task Initialize()
         {
-#if !DEBUG
-            var cloudLogger = new CloudLogger();
-            Resolver.Log.AddProvider(cloudLogger);
-            Resolver.Services.Add(cloudLogger);
-#endif
+            InitLogging();
+
             Resolver.Log.Info("Initialize...");
 
             RegisterUpdateService();
@@ -73,6 +75,8 @@ namespace DisplayTest
 
             return base.Initialize();
         }
+
+        
 
         public override Task Run()
         {
@@ -134,34 +138,15 @@ namespace DisplayTest
             return base.OnError(e);
         }
 
-        private void Dispose(bool disposing)
+        [Conditional("RELEASE")]
+        private void InitLogging()
         {
-            Resolver.Log.Info("Disposing...");
-
-            _isRunning = false;
-
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _speaker.Dispose();
-                    _distanceSensor.Dispose();
-                    _rotaryEncoder.Dispose();
-                    _i2cBus.Dispose();
-                    _st7789.Dispose();
-                }
-
-                disposedValue = true;
-            }
+            var cloudLogger = new CloudLogger();
+            Resolver.Log.AddProvider(cloudLogger);
+            Resolver.Services.Add(cloudLogger);
         }
 
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
-
+        [Conditional("RELEASE")]
         private void RegisterUpdateService()
         {
             var svc = Resolver.UpdateService;
@@ -199,5 +184,37 @@ namespace DisplayTest
                 updateService.ApplyUpdate(info);
             };
         }
+
+        #region Dispose
+
+        private void Dispose(bool disposing)
+        {
+            Resolver.Log.Info("Disposing...");
+
+            _isRunning = false;
+
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    _speaker.Dispose();
+                    _distanceSensor.Dispose();
+                    _rotaryEncoder.Dispose();
+                    _i2cBus.Dispose();
+                    _st7789.Dispose();
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }
