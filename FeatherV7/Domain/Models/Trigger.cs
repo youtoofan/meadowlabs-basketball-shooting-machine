@@ -17,15 +17,14 @@ namespace DisplayTest.Domain.Models
 
         public Trigger(IPin pin) 
         {
-            this.OutputPort = pin.CreateDigitalOutputPort(false);
-            this.OutputPort.State = false;
+            this.OutputPort = pin.CreateDigitalOutputPort(true);
         }
 
         public async Task ShootAsync()
         {
-            this.OutputPort.State = true;
-            await Task.Delay(TimeSpan.FromSeconds(1));
             this.OutputPort.State = false;
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            this.OutputPort.State = true;
         }
     }
 }
