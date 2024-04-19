@@ -76,11 +76,13 @@ namespace FeatherV7.Domain.StateMachine
 
             svc.UpdateSuccess += (s, e) =>
             {
+                svc.ClearUpdates();
                 BallShooterMachine.SetState(BallShooterMachine.BootingState);
             };
 
             svc.UpdateFailure += (s, e) =>
             {
+                svc.ClearUpdates();
                 BallShooterMachine.SetState(BallShooterMachine.BootingState);
             };
         }
