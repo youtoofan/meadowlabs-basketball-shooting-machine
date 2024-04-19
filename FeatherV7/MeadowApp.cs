@@ -135,19 +135,19 @@ namespace DisplayTest
 
             svc.StateChanged += (sender, updateState) =>
             {
-                Resolver.Log.Info($"UpdateState {updateState}");
+               UpdateDisplay($"UpdateState {updateState}");
             };
 
             svc.RetrieveProgress += (updateService, info) =>
             {
                 short percentage = (short)((double)info.DownloadProgress / info.FileSize * 100);
 
-                Resolver.Log.Info($"Downloading... {percentage}%");
+                UpdateDisplay($"Downloading... {percentage}%");
             };
 
             svc.UpdateAvailable += async (updateService, info) =>
             {
-                Resolver.Log.Info($"Update available!");
+                UpdateDisplay($"Update available!");
 
                 // Queue update for retrieval "later"
                 await Task.Delay(5000);
@@ -157,7 +157,7 @@ namespace DisplayTest
 
             svc.UpdateRetrieved += async (updateService, info) =>
             {
-                Resolver.Log.Info($"Update retrieved!");
+                UpdateDisplay($"Update retrieved!");
 
                 await Task.Delay(5000);
 
@@ -165,12 +165,21 @@ namespace DisplayTest
             };
         }
 
+        private void UpdateDisplay(string message)
+        {
+            Resolver.Log.Info(message);
+
+            if(_ballShooterMachine == null)
+            {
+                return;
+            }
+
+            _ballShooterMachine.Graphics.ShowState(message);
+        }
+
         private void InitDevices()
         {
             Resolver.Log.Info("Initialize devices");
-
-            _speaker = new Speaker(Device.Pins.D12);
-            _relay = new Trigger(Device.Pins.D06);
 
             _st7789 = new St7789(
                 spiBus: Device.CreateSpiBus(),
@@ -180,13 +189,18 @@ namespace DisplayTest
                 width: 240,
                 height: 240);
 
+            _graphics = new Display(this, _st7789, RotationType._180Degrees);
+            
             _onboardLed = new Led(
                 redPwmPin: Device.Pins.OnboardLedRed,
                 greenPwmPin: Device.Pins.OnboardLedGreen,
                 bluePwmPin: Device.Pins.OnboardLedBlue);
 
+            _speaker = new Speaker(Device.Pins.D12);
+            _relay = new Trigger(Device.Pins.D06);
+
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
-            _graphics = new Display(this, _st7789, RotationType._180Degrees);
+            
 
             _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
             _distanceSensor = new Vl53l0x(_i2cBus);
