@@ -9,8 +9,7 @@ using System.Threading.Tasks;
 using Meadow.Foundation.Sensors.Rotary;
 using Meadow.Foundation.Sensors.Distance;
 using Meadow.Hardware;
-using DisplayTest.Domain.Models;
-using Led = DisplayTest.Domain.Models.Led;
+using Led = FeatherV7.Domain.Models.Led;
 using Meadow.Logging;
 using FeatherV7.Domain.Models;
 using CommonFeather;
@@ -19,9 +18,8 @@ using System;
 using AsyncAwaitBestPractices;
 using Meadow.Peripherals.Displays;
 using System.Diagnostics;
-using Meadow.Foundation.Relays;
 
-namespace DisplayTest
+namespace FeatherV7
 {
     // Change F7CoreComputeV2 to F7FeatherV2 (or F7FeatherV1) for Feather boards
     public sealed class MeadowApp : App<F7FeatherV2>, IDisposable
@@ -45,8 +43,6 @@ namespace DisplayTest
         {
             InitLogging();
 
-            RegisterUpdateService();
-
             InitDevices();
 
             return base.Initialize();
@@ -64,7 +60,7 @@ namespace DisplayTest
                     _lastUpdate = DateTimeOffset.Now;
                     _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(result.New.Centimeters));
                 },
-                filter: result => 
+                filter: result =>
                 {
                     return result.New != null && result.New > Meadow.Units.Length.Zero;
                 }
@@ -80,9 +76,9 @@ namespace DisplayTest
                 _relay.ShootAsync().SafeFireAndForget();
             };
 
-            _rotaryEncoder.LongClicked += (s, e) => {  };
-            _rotaryEncoder.Clicked += (s, e) => {  };
-            _rotaryEncoder.PressEnded += (s, e) => {  };
+            _rotaryEncoder.LongClicked += (s, e) => { };
+            _rotaryEncoder.Clicked += (s, e) => { };
+            _rotaryEncoder.PressEnded += (s, e) => { };
 
             _distanceSensor.Subscribe(distanceConsumer);
             _ballShooterMachine.Start();
@@ -126,50 +122,11 @@ namespace DisplayTest
             Resolver.Log.Info("Initialize logging");
         }
 
-        [Conditional("RELEASE")]
-        private void RegisterUpdateService()
-        {
-            var svc = Resolver.UpdateService;
-
-            svc.ClearUpdates();
-
-            svc.StateChanged += (sender, updateState) =>
-            {
-               UpdateDisplay($"UpdateState {updateState}");
-            };
-
-            svc.RetrieveProgress += (updateService, info) =>
-            {
-                short percentage = (short)((double)info.DownloadProgress / info.FileSize * 100);
-
-                UpdateDisplay($"Downloading... {percentage}%");
-            };
-
-            svc.UpdateAvailable += async (updateService, info) =>
-            {
-                UpdateDisplay($"Update available!");
-
-                // Queue update for retrieval "later"
-                await Task.Delay(5000);
-
-                updateService.RetrieveUpdate(info);
-            };
-
-            svc.UpdateRetrieved += async (updateService, info) =>
-            {
-                UpdateDisplay($"Update retrieved!");
-
-                await Task.Delay(5000);
-
-                updateService.ApplyUpdate(info);
-            };
-        }
-
         private void UpdateDisplay(string message)
         {
             Resolver.Log.Info(message);
 
-            if(_ballShooterMachine == null)
+            if (_ballShooterMachine == null)
             {
                 return;
             }
@@ -190,7 +147,7 @@ namespace DisplayTest
                 height: 240);
 
             _graphics = new Display(this, _st7789, RotationType._180Degrees);
-            
+
             _onboardLed = new Led(
                 redPwmPin: Device.Pins.OnboardLedRed,
                 greenPwmPin: Device.Pins.OnboardLedGreen,
@@ -200,7 +157,7 @@ namespace DisplayTest
             _relay = new Trigger(Device.Pins.D06);
 
             _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
-            
+
 
             _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
             _distanceSensor = new Vl53l0x(_i2cBus);

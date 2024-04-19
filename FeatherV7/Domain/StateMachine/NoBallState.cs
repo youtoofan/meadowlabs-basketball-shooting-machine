@@ -1,16 +1,16 @@
-﻿using DisplayTest.Domain.Models;
-using Meadow;
+﻿using Meadow;
 using UnitsNet;
 using System;
 using CommonFeather;
+using FeatherV7.Domain.Models;
 
-namespace DisplayTest.Domain.StateMachine
+namespace FeatherV7.Domain.StateMachine
 {
     internal class NoBallState : State
     {
         public override string Name => "No ball";
 
-        public NoBallState(BallShooterMachine ballShooterMachine) 
+        public NoBallState(BallShooterMachine ballShooterMachine)
             : base(ballShooterMachine)
         {
             Resolver.Log.Debug("No Ball");
@@ -18,28 +18,28 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
-            this.BallShooterMachine.Graphics.ShowState("No ball");
-            this.BallShooterMachine.Led.ShowNoBall();
+            BallShooterMachine.Graphics.ShowState("No ball");
+            BallShooterMachine.Led.ShowNoBall();
         }
 
         internal override void SetLaunchDelay(TimeSpan delay)
         {
-            this.BallShooterMachine.Graphics.ShowRotatorScreen(delay);
+            BallShooterMachine.Graphics.ShowRotatorScreen(delay);
         }
 
         internal override void UpdateDistanceToObject(Length distance)
         {
-            this.BallShooterMachine.Graphics.ShowDistanceScreen(distance);
+            BallShooterMachine.Graphics.ShowDistanceScreen(distance);
 
             if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
                 return;
 
-            this.BallShooterMachine.SetState(this.BallShooterMachine.BallState);
+            BallShooterMachine.SetState(BallShooterMachine.BallState);
         }
 
         internal override void ForceLaunch()
         {
-            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
+            BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

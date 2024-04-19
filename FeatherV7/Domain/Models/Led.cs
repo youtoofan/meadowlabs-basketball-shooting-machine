@@ -4,49 +4,49 @@ using Meadow.Foundation.Leds;
 using Meadow.Hardware;
 using Meadow.Peripherals.Leds;
 
-namespace DisplayTest.Domain.Models
+namespace FeatherV7.Domain.Models
 {
 
     internal class Led : RgbPwmLed, IShooterLed
     {
-        public Led(IPin redPwmPin, IPin greenPwmPin, IPin bluePwmPin, CommonType commonType = CommonType.CommonCathode) 
+        public Led(IPin redPwmPin, IPin greenPwmPin, IPin bluePwmPin, CommonType commonType = CommonType.CommonCathode)
             : base(redPwmPin, greenPwmPin, bluePwmPin, commonType)
         {
         }
 
         public void ShowError()
         {
-            this.SetColor(Color.Red);
+            SetColor(Color.Red);
         }
 
         public void ShowBall()
         {
-            this.SetColor(Color.Yellow);
+            SetColor(Color.Yellow);
         }
 
         public void ShowLaunching()
         {
-            this.SetColor(Color.Green);
+            SetColor(Color.Green);
         }
 
         public void ShowNoBall()
         {
-            this.SetColor(Color.Blue);
+            SetColor(Color.Blue);
         }
 
         public void ShowReady()
         {
-            this.SetColor(Color.White);
+            SetColor(Color.White);
         }
 
         public void ShowBooting()
         {
-            this.SetColor(Color.LightPink);
+            SetColor(Color.LightPink);
         }
 
         public void StartPulse(Color color)
         {
-            this.SetColor(color);
+            SetColor(color);
             //this.StartPulse(color);
         }
     }

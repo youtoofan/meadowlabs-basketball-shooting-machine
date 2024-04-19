@@ -1,10 +1,10 @@
-﻿using DisplayTest.Domain.Models;
+﻿using FeatherV7.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using UnitsNet;
 
-namespace DisplayTest.Domain.StateMachine
+namespace FeatherV7.Domain.StateMachine
 {
     internal abstract class State
     {
@@ -21,6 +21,12 @@ namespace DisplayTest.Domain.StateMachine
         internal abstract void SetLaunchDelay(TimeSpan delay);
 
         internal abstract void UpdateDistanceToObject(Length distance);
+
         internal abstract void ForceLaunch();
+
+        internal virtual void ForceSoftwareUpdate()
+        {
+            BallShooterMachine.SetState(BallShooterMachine.SoftwareUpdateState);
+        }
     }
 }

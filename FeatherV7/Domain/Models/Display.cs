@@ -8,7 +8,7 @@ using System;
 using System.Threading;
 using UnitsNet;
 
-namespace DisplayTest.Domain.Models
+namespace FeatherV7.Domain.Models
 {
 
     internal class Display : DisplayScreen, IShooterDisplay
@@ -29,27 +29,27 @@ namespace DisplayTest.Domain.Models
             : base(physicalDisplay, rotation, touchScreen, theme)
         {
             this.app = app;
-            this.BackgroundColor = colors[0];
+            BackgroundColor = colors[0];
         }
 
         public void Init()
         {
-            this.Controls.Add(new Circle(
-                centerX: this.Width / 2,
-                centerY: this.Height / 2,
-                radius: this.Height / 2)
+            Controls.Add(new Circle(
+                centerX: Width / 2,
+                centerY: Height / 2,
+                radius: Height / 2)
             {
                 ForeColor = colors[3],
                 IsFilled = true
             });
 
-            this.Controls.Add(new Label(
+            Controls.Add(new Label(
                 left: 20,
                 top: 20,
-                width: this.Width - 40,
-                height: this.Height - 40)
+                width: Width - 40,
+                height: Height - 40)
             {
-                Text = "SHOOTING MACHINE V2",
+                Text = "SHOOTING MACHINE V5",
                 TextColor = Color.Black,
                 BackColor = Color.Transparent,
                 Font = new Font12x20(),
@@ -60,8 +60,8 @@ namespace DisplayTest.Domain.Models
             clockLabel = new Label(
                 left: 20,
                 top: -20,
-                width: this.Width - 40,
-                height: this.Height - 40)
+                width: Width - 40,
+                height: Height - 40)
             {
                 Text = "",
                 TextColor = Color.Black,
@@ -74,8 +74,8 @@ namespace DisplayTest.Domain.Models
             statusLabel = new Label(
                 left: 20,
                 top: -50,
-                width: this.Width - 40,
-                height: this.Height - 40)
+                width: Width - 40,
+                height: Height - 40)
             {
                 Text = "",
                 TextColor = Color.Black,
@@ -88,8 +88,8 @@ namespace DisplayTest.Domain.Models
             counterLabel = new Label(
                 left: 20,
                 top: 50,
-                width: this.Width - 40,
-                height: this.Height - 40)
+                width: Width - 40,
+                height: Height - 40)
             {
                 Text = "",
                 TextColor = Color.Black,
@@ -102,8 +102,8 @@ namespace DisplayTest.Domain.Models
             distanceLabel = new Label(
                 left: 20,
                 top: 80,
-                width: this.Width - 40,
-                height: this.Height - 40)
+                width: Width - 40,
+                height: Height - 40)
             {
                 Text = "",
                 TextColor = Color.Black,
@@ -113,10 +113,10 @@ namespace DisplayTest.Domain.Models
                 VerticalAlignment = VerticalAlignment.Center,
             };
 
-            this.Controls.Add(statusLabel);
-            this.Controls.Add(clockLabel);
-            this.Controls.Add(counterLabel);
-            this.Controls.Add(distanceLabel);
+            Controls.Add(statusLabel);
+            Controls.Add(clockLabel);
+            Controls.Add(counterLabel);
+            Controls.Add(distanceLabel);
 
             var timer = new Timer(ShowCurrentTimeScreen, null, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(1));
         }

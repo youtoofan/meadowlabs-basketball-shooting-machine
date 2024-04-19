@@ -1,5 +1,4 @@
-﻿using DisplayTest.Domain.Models;
-using Meadow;
+﻿using Meadow;
 using UnitsNet;
 using System;
 using System.Collections.Generic;
@@ -7,13 +6,14 @@ using System.Text;
 using CommonFeather;
 using AsyncAwaitBestPractices;
 using System.Threading.Tasks;
+using FeatherV7.Domain.Models;
 
-namespace DisplayTest.Domain.StateMachine
+namespace FeatherV7.Domain.StateMachine
 {
     internal class BallState : State
     {
         public override string Name => "Ball detected";
-        public BallState(BallShooterMachine ballShooterMachine) 
+        public BallState(BallShooterMachine ballShooterMachine)
             : base(ballShooterMachine)
         {
             Resolver.Log.Debug("Ball");
@@ -21,14 +21,14 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
-            this.BallShooterMachine.Graphics.ShowState("Ball");
-            this.BallShooterMachine.Led.ShowBall();
-            this.BallShooterMachine.Speaker.PlayBuzzAsync();
+            BallShooterMachine.Graphics.ShowState("Ball");
+            BallShooterMachine.Led.ShowBall();
+            BallShooterMachine.Speaker.PlayBuzzAsync();
         }
 
         internal override void SetLaunchDelay(TimeSpan delay)
         {
-            this.BallShooterMachine.Graphics.ShowRotatorScreen(delay);
+            BallShooterMachine.Graphics.ShowRotatorScreen(delay);
         }
 
         internal override void UpdateDistanceToObject(Length distance)
@@ -37,27 +37,26 @@ namespace DisplayTest.Domain.StateMachine
             if (distance <= Length.Zero || distance > Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
             {
                 Resolver.Log.Info("Ball is out-of-bounds again.");
-                this.BallShooterMachine.SetState(this.BallShooterMachine.NoBallState);
+                BallShooterMachine.SetState(BallShooterMachine.NoBallState);
             }
 
-            Resolver.Log.Info("Correct distance confirmed.");
-
-            if (this.BallShooterMachine.CountDownValueInSeconds >= Constants.Sensors.MINIMUM_COUNTDOWN_SECONDS)
+            if (BallShooterMachine.CountDownValueInSeconds >= Constants.Sensors.MINIMUM_COUNTDOWN_SECONDS)
             {
-                this.BallShooterMachine.SetState(this.BallShooterMachine.LaunchingState);
+                Resolver.Log.Info("Correct distance confirmed.");
+                BallShooterMachine.SetState(BallShooterMachine.LaunchingState);
             }
         }
 
         internal override async void ForceLaunch()
         {
-            this.BallShooterMachine.Graphics.ShowBoom();
-            this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
-            this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
+            BallShooterMachine.Graphics.ShowBoom();
+            BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
+            BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
 
             Resolver.Log.Error("Launch successfull!");
 
             await Task.Delay(TimeSpan.FromSeconds(3));
-            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+            BallShooterMachine.SetState(BallShooterMachine.ReadyState);
         }
     }
 }

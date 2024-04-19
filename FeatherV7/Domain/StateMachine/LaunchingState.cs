@@ -1,13 +1,13 @@
 ﻿using AsyncAwaitBestPractices;
-using DisplayTest.Domain.Models;
 using Meadow;
 using UnitsNet;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CommonFeather;
+using FeatherV7.Domain.Models;
 
-namespace DisplayTest.Domain.StateMachine
+namespace FeatherV7.Domain.StateMachine
 {
     internal class LaunchingState : State
     {
@@ -16,7 +16,7 @@ namespace DisplayTest.Domain.StateMachine
 
         private CancellationTokenSource _cancellationTokenSource;
 
-        public LaunchingState(BallShooterMachine ballShooterMachine) 
+        public LaunchingState(BallShooterMachine ballShooterMachine)
             : base(ballShooterMachine)
         {
             Resolver.Log.Debug("Launching");
@@ -29,14 +29,14 @@ namespace DisplayTest.Domain.StateMachine
 
             _cancellationTokenSource = new CancellationTokenSource();
 
-            this.BallShooterMachine.Graphics.ShowState("Launching");
-            this.BallShooterMachine.Led.ShowLaunching();
-            this.StartCountDownSequenceAsync(_cancellationTokenSource.Token).SafeFireAndForget();
+            BallShooterMachine.Graphics.ShowState("Launching");
+            BallShooterMachine.Led.ShowLaunching();
+            StartCountDownSequenceAsync(_cancellationTokenSource.Token).SafeFireAndForget();
         }
 
         internal override void SetLaunchDelay(TimeSpan delay)
         {
-            this.BallShooterMachine.Graphics.ShowRotatorScreen(delay);
+            BallShooterMachine.Graphics.ShowRotatorScreen(delay);
         }
 
         internal override void UpdateDistanceToObject(Length distance)
@@ -51,7 +51,7 @@ namespace DisplayTest.Domain.StateMachine
 
         private async Task StartCountDownSequenceAsync(CancellationToken cancellationToken)
         {
-            var totalSeconds = (this.BallShooterMachine.CountDownValueInSeconds);
+            var totalSeconds = BallShooterMachine.CountDownValueInSeconds;
 
             var task = Task.Run(async () =>
             {
@@ -61,23 +61,23 @@ namespace DisplayTest.Domain.StateMachine
 
                     for (int i = totalSeconds; i > 0; i--)
                     {
-                        this.BallShooterMachine.Speaker.PlayClickAsync().SafeFireAndForget();
-                        this.BallShooterMachine.Graphics.ShowCountDownSequenceScreen(i);
-                        this.BallShooterMachine.BluetoothHandler.UpdateStatus($"Launch in {i}...");
+                        BallShooterMachine.Speaker.PlayClickAsync().SafeFireAndForget();
+                        BallShooterMachine.Graphics.ShowCountDownSequenceScreen(i);
+                        BallShooterMachine.BluetoothHandler.UpdateStatus($"Launch in {i}...");
 
                         if (cancellationToken.IsCancellationRequested)
                         {
                             Resolver.Log.Error("Launch was cancelled.");
 
-                            this.BallShooterMachine.BluetoothHandler.UpdateStatus("Launch cancelled");
-                            this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
-                            this.BallShooterMachine.Graphics.ShowCancel();
-                            this.BallShooterMachine.Led.ShowError();
-                            this.BallShooterMachine.Speaker.PlayWarningAsync().SafeFireAndForget();
+                            BallShooterMachine.BluetoothHandler.UpdateStatus("Launch cancelled");
+                            BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
+                            BallShooterMachine.Graphics.ShowCancel();
+                            BallShooterMachine.Led.ShowError();
+                            BallShooterMachine.Speaker.PlayWarningAsync().SafeFireAndForget();
 
                             await Task.Delay(TimeSpan.FromSeconds(2));
 
-                            this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+                            BallShooterMachine.SetState(BallShooterMachine.ReadyState);
 
                             return;
                         }
@@ -85,18 +85,18 @@ namespace DisplayTest.Domain.StateMachine
                         await Task.Delay(TimeSpan.FromSeconds(1));
                     }
 
-                    this.BallShooterMachine.BluetoothHandler.UpdateStatus("Ball away!");
-                    this.BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
-                    this.BallShooterMachine.Graphics.ShowBoom();
-                    this.BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
-                    this.BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
+                    BallShooterMachine.BluetoothHandler.UpdateStatus("Ball away!");
+                    BallShooterMachine.BluetoothHandler.LaunchTriggered(true);
+                    BallShooterMachine.Graphics.ShowBoom();
+                    BallShooterMachine.Speaker.PlayLaunchAsync().SafeFireAndForget();
+                    BallShooterMachine.Trigger.ShootAsync().SafeFireAndForget();
 
                     Resolver.Log.Info("Launch successfull!");
                 }
                 finally
                 {
                     await Task.Delay(TimeSpan.FromSeconds(3));
-                    this.BallShooterMachine.SetState(this.BallShooterMachine.ReadyState);
+                    BallShooterMachine.SetState(BallShooterMachine.ReadyState);
                     _cancellationTokenSource.Dispose();
 
                     _isLaunching = false;
@@ -109,7 +109,7 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void ForceLaunch()
         {
-            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
+            BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

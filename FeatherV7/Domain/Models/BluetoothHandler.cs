@@ -8,7 +8,6 @@ using Meadow.Gateways.Bluetooth;
 using Meadow.Hardware;
 using UnitsNet;
 using System;
-using DisplayTest;
 
 namespace FeatherV7.Domain.Models
 {

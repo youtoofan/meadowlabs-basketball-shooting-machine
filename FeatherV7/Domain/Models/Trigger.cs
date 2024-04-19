@@ -8,23 +8,23 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DisplayTest.Domain.Models
+namespace FeatherV7.Domain.Models
 {
 
-    internal class Trigger :  IShooterTrigger
+    internal class Trigger : IShooterTrigger
     {
         private IDigitalOutputPort OutputPort { get; }
 
-        public Trigger(IPin pin) 
+        public Trigger(IPin pin)
         {
-            this.OutputPort = pin.CreateDigitalOutputPort(true);
+            OutputPort = pin.CreateDigitalOutputPort(true);
         }
 
         public async Task ShootAsync()
         {
-            this.OutputPort.State = false;
+            OutputPort.State = false;
             await Task.Delay(TimeSpan.FromSeconds(1));
-            this.OutputPort.State = true;
+            OutputPort.State = true;
         }
     }
 }
