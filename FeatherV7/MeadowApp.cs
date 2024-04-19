@@ -112,7 +112,6 @@ namespace FeatherV7
             return base.OnError(e);
         }
 
-        [Conditional("RELEASE")]
         private void InitLogging()
         {
             var cloudLogger = new CloudLogger();
