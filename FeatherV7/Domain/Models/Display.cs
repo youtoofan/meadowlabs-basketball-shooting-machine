@@ -49,7 +49,7 @@ namespace FeatherV7.Domain.Models
                 width: Width - 40,
                 height: Height - 40)
             {
-                Text = "SHOOTING MACHINE V7",
+                Text = "SHOOTING MACHINE V8",
                 TextColor = Color.Black,
                 BackColor = Color.Transparent,
                 Font = new Font12x20(),
