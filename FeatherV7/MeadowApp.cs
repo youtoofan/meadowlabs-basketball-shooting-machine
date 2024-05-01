@@ -66,21 +66,24 @@ namespace FeatherV7
                 }
             );
 
-            _rotaryEncoder.Rotated += (s, e) =>
+            if (_rotaryEncoder != null)
             {
-                _ballShooterMachine.HandleRotationDirection(e.New);
-            };
+                _rotaryEncoder.Rotated += (s, e) =>
+                {
+                    _ballShooterMachine.HandleRotationDirection(e.New);
+                };
 
-            _rotaryEncoder.PressStarted += (s, e) =>
-            {
-                _relay.ShootAsync().SafeFireAndForget();
-            };
+                _rotaryEncoder.PressStarted += (s, e) =>
+                {
+                    _relay.ShootAsync().SafeFireAndForget();
+                };
 
-            _rotaryEncoder.LongClicked += (s, e) => { };
-            _rotaryEncoder.Clicked += (s, e) => { };
-            _rotaryEncoder.PressEnded += (s, e) => { };
+                _rotaryEncoder.LongClicked += (s, e) => { };
+                _rotaryEncoder.Clicked += (s, e) => { };
+                _rotaryEncoder.PressEnded += (s, e) => { };
+            }
 
-            _distanceSensor.Subscribe(distanceConsumer);
+            _distanceSensor?.Subscribe(distanceConsumer);
             _ballShooterMachine.Start();
 
             _isRunning = true;
@@ -93,8 +96,8 @@ namespace FeatherV7
                     {
                         Resolver.Log.Warn("Distance sensor not updating");
 
-                        _distanceSensor.StopUpdating();
-                        _distanceSensor.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
+                        _distanceSensor?.StopUpdating();
+                        _distanceSensor?.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
 
                         Resolver.Log.Warn("Request to start updating sensor");
                     }
@@ -117,52 +120,47 @@ namespace FeatherV7
             var cloudLogger = new CloudLogger();
             Resolver.Log.AddProvider(cloudLogger);
             Resolver.Services.Add(cloudLogger);
-
             Resolver.Log.Info("Initialize logging");
-        }
-
-        private void UpdateDisplay(string message)
-        {
-            Resolver.Log.Info(message);
-
-            if (_ballShooterMachine == null)
-            {
-                return;
-            }
-
-            _ballShooterMachine.Graphics.ShowState(message);
         }
 
         private void InitDevices()
         {
-            Resolver.Log.Info("Initialize devices");
+            try
+            {
+                Resolver.Log.Info("Initialize devices");
 
-            _st7789 = new St7789(
-                spiBus: Device.CreateSpiBus(),
-                chipSelectPin: Device.Pins.D02,
-                dcPin: Device.Pins.D01,
-                resetPin: Device.Pins.D00,
-                width: 240,
-                height: 240);
+                _st7789 = new St7789(
+                        spiBus: Device.CreateSpiBus(),
+                        chipSelectPin: Device.Pins.D02,
+                        dcPin: Device.Pins.D01,
+                        resetPin: Device.Pins.D00,
+                        width: 240,
+                        height: 240);
 
-            _graphics = new Display(this, _st7789, RotationType._180Degrees);
+                _graphics = new Display(this, _st7789, RotationType._180Degrees);
 
-            _onboardLed = new Led(
-                redPwmPin: Device.Pins.OnboardLedRed,
-                greenPwmPin: Device.Pins.OnboardLedGreen,
-                bluePwmPin: Device.Pins.OnboardLedBlue);
+                _onboardLed = new Led(
+                    redPwmPin: Device.Pins.OnboardLedRed,
+                    greenPwmPin: Device.Pins.OnboardLedGreen,
+                    bluePwmPin: Device.Pins.OnboardLedBlue);
 
-            _speaker = new Speaker(Device.Pins.D12);
-            _relay = new Trigger(Device.Pins.D06);
+                _speaker = new Speaker(Device.Pins.D12);
+                _relay = new Trigger(Device.Pins.D06);
 
-            _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
+                _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
+                _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
+                _distanceSensor = new Vl53l0x(_i2cBus);
 
-            _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
-            _distanceSensor = new Vl53l0x(_i2cBus);
+                _bluetoothHandler = new BluetoothHandler(_onboardLed);
+                _bluetoothHandler.Initialize();
 
-            _bluetoothHandler = new BluetoothHandler(_onboardLed);
-            _bluetoothHandler.Initialize();
+                Resolver.Log.Info("Initialize devices done");
+            }
+            catch (Exception e)
+            {
+                Resolver.Log.Error(e, "Devices init failed.");
+            }
         }
 
         #region Dispose
