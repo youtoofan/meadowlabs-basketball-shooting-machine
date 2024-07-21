@@ -1,11 +1,11 @@
-﻿using DisplayTest.Domain.StateMachine;
-using FeatherV7.Domain.Interfaces;
+﻿using FeatherV7.Domain.Interfaces;
+using FeatherV7.Domain.StateMachine;
 using Meadow;
 using Meadow.Peripherals;
 using System;
 using UnitsNet;
 
-namespace DisplayTest.Domain.Models
+namespace FeatherV7.Domain.Models
 {
     internal sealed class BallShooterMachine
     {
@@ -14,7 +14,8 @@ namespace DisplayTest.Domain.Models
         public readonly State NoBallState;
         public readonly State BallState;
         public readonly State ReadyState;
-        
+        public readonly State SoftwareUpdateState;
+
         public readonly IShooterDisplay Graphics;
         public readonly IShooterSpeaker Speaker;
         public readonly IShooterTrigger Trigger;
@@ -26,25 +27,26 @@ namespace DisplayTest.Domain.Models
 
         public BallShooterMachine(IShooterDisplay graphics, IShooterSpeaker speaker, IShooterTrigger trigger, IShooterLed led, IBluetoothHandler bluetoothHandler)
         {
-            this.Graphics = graphics;
-            this.Speaker = speaker;
-            this.Trigger = trigger;
-            this.Led = led;
+            Graphics = graphics;
+            Speaker = speaker;
+            Trigger = trigger;
+            Led = led;
 
-            this.BluetoothHandler = bluetoothHandler;
-            this.BluetoothHandler.ButtonClicked += (s, e) => { this.Graphics.ShowState($"Button {e}"); };
-            this.BluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
-            this.BluetoothHandler.BlePaired += (s, e) => { this.Graphics.ShowState($"BLE {e}"); };
-            this.BluetoothHandler.WifiEnabled += (s, e) => { this.Graphics.ShowState($"WIFI {e}"); };
-            this.BluetoothHandler.Launched += (s, e) => { _currentState.ForceLaunch(); };
+            BluetoothHandler = bluetoothHandler;
+            BluetoothHandler.ButtonClicked += (s, e) => { Graphics.ShowState($"Button {e}"); };
+            BluetoothHandler.RotationUpdated += (s, e) => { _currentState.SetLaunchDelay(TimeSpan.FromSeconds(e)); };
+            BluetoothHandler.BlePaired += (s, e) => { Graphics.ShowState($"BLE {e}"); };
+            BluetoothHandler.WifiEnabled += (s, e) => { Graphics.ShowState($"WIFI {e}"); };
+            BluetoothHandler.Launched += (s, e) => { _currentState.ForceLaunch(); };
 
-            this.BootingState = new BootingState(this);
-            this.LaunchingState = new LaunchingState(this);
-            this.NoBallState = new NoBallState(this);
-            this.BallState = new BallState(this);
-            this.ReadyState = new ReadyState(this);
+            BootingState = new BootingState(this);
+            LaunchingState = new LaunchingState(this);
+            NoBallState = new NoBallState(this);
+            BallState = new BallState(this);
+            ReadyState = new ReadyState(this);
+            SoftwareUpdateState = new SoftwareUpdateState(this);
 
-            this._currentState = BootingState;
+            _currentState = BootingState;
         }
 
         internal void Start()
@@ -54,9 +56,12 @@ namespace DisplayTest.Domain.Models
 
         internal void SetState(State state)
         {
+            if (state.Name == _currentState.Name)
+                return;
+
             var name = state.Name;
-            this._currentState = state;
-            this._currentState.Init();
+            _currentState = state;
+            _currentState.Init();
 
             BluetoothHandler.UpdateStatus(name);
         }

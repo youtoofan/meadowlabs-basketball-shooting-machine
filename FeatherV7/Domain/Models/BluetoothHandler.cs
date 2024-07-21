@@ -8,7 +8,6 @@ using Meadow.Gateways.Bluetooth;
 using Meadow.Hardware;
 using UnitsNet;
 using System;
-using DisplayTest;
 
 namespace FeatherV7.Domain.Models
 {
@@ -48,39 +47,39 @@ namespace FeatherV7.Domain.Models
 
         public void Initialize()
         {
-        //    bleTreeDefinition = GetDefinition();
-        //    MeadowApp.Device.BluetoothAdapter.StartBluetoothServer(bleTreeDefinition);
+            bleTreeDefinition = GetDefinition();
+            MeadowApp.Device.BluetoothAdapter.StartBluetoothServer(bleTreeDefinition);
 
-        //    SetupBluetoothDataReceiveHandlers();
+            SetupBluetoothDataReceiveHandlers();
 
-        //    wifi = MeadowApp.Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
-        //    wifi.NetworkConnected += WifiNetworkConnected;
-        //    wifi.NetworkDisconnected += WifiNetworkDisconnected;
+            wifi = MeadowApp.Device.NetworkAdapters.Primary<IWiFiNetworkAdapter>();
+            wifi.NetworkConnected += WifiNetworkConnected;
+            wifi.NetworkDisconnected += WifiNetworkDisconnected;
         }
 
         public void UpdateDistance(Length value)
         {
-            //Distance.SetValue((int)Math.Round(value.Centimeters));
+            Distance.SetValue((int)Math.Round(value.Centimeters));
         }
 
         public void UpdateRotation(TimeSpan value)
         {
-            //Rotation.SetValue((int)Math.Round(value.TotalSeconds));
+            Rotation.SetValue((int)Math.Round(value.TotalSeconds));
         }
 
         public void RotationClicked(bool value)
         {
-            //Button.SetValue(value);
+            Button.SetValue(value);
         }
 
         public void LaunchTriggered(bool value)
         {
-            //Launch.SetValue(value);
+            Launch.SetValue(value);
         }
 
         public void UpdateStatus(string status)
         {
-            //Status.SetValue(status);
+            Status.SetValue(status);
         }
 
         private void SetupBluetoothDataReceiveHandlers()

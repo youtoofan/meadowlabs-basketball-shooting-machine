@@ -1,10 +1,10 @@
-﻿using DisplayTest.Domain.Models;
-using Meadow;
+﻿using Meadow;
 using UnitsNet;
 using System;
 using CommonFeather;
+using FeatherV7.Domain.Models;
 
-namespace DisplayTest.Domain.StateMachine
+namespace FeatherV7.Domain.StateMachine
 {
     internal class ReadyState : State
     {
@@ -19,15 +19,15 @@ namespace DisplayTest.Domain.StateMachine
 
         internal override void Init()
         {
-            this.BallShooterMachine.Graphics.ShowState("Ready");
-            this.BallShooterMachine.Led.ShowReady();
-            this.BallShooterMachine.Graphics.ShowCurrentTimeScreen(null);
-            this.BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
+            BallShooterMachine.Graphics.ShowState("Ready");
+            BallShooterMachine.Led.ShowReady();
+            BallShooterMachine.Graphics.ShowCurrentTimeScreen(null);
+            BallShooterMachine.BluetoothHandler.LaunchTriggered(false);
         }
 
         internal override void SetLaunchDelay(TimeSpan delay)
         {
-            this.BallShooterMachine.Graphics.ShowRotatorScreen(delay);
+            BallShooterMachine.Graphics.ShowRotatorScreen(delay);
         }
 
         internal override void UpdateDistanceToObject(Length distance)
@@ -41,17 +41,17 @@ namespace DisplayTest.Domain.StateMachine
 
             if (distance > Length.Zero && distance <= Constants.Sensors.MINIMUM_SENSOR_DISTANCE)
             {
-                this.BallShooterMachine.SetState(this.BallShooterMachine.BallState);
+                BallShooterMachine.SetState(BallShooterMachine.BallState);
             }
             else
             {
-                this.BallShooterMachine.SetState(this.BallShooterMachine.NoBallState);
+                BallShooterMachine.SetState(BallShooterMachine.NoBallState);
             }
         }
 
         internal override void ForceLaunch()
         {
-            this.BallShooterMachine.Graphics.ShowState("FORBIDDEN");
+            BallShooterMachine.Graphics.ShowState("FORBIDDEN");
         }
     }
 }

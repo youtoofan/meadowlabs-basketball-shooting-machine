@@ -8,27 +8,23 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DisplayTest.Domain.Models
+namespace FeatherV7.Domain.Models
 {
 
-    internal class Trigger : Relay, IShooterTrigger
+    internal class Trigger : IShooterTrigger
     {
-        public Trigger(IDigitalOutputPort port) 
-            : base(port, RelayType.NormallyOpen)
+        private IDigitalOutputPort OutputPort { get; }
+
+        public Trigger(IPin pin)
         {
+            OutputPort = pin.CreateDigitalOutputPort(true);
         }
 
         public async Task ShootAsync()
         {
-            if (this.State == RelayState.Closed)
-            {
-                Resolver.Log.Error("Relay already in ON-state");
-                return;
-            }
-
-            this.Toggle();
+            OutputPort.State = false;
             await Task.Delay(TimeSpan.FromSeconds(1));
-            this.Toggle();
+            OutputPort.State = true;
         }
     }
 }
