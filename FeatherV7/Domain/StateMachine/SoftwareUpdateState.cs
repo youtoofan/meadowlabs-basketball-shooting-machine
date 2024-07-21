@@ -9,7 +9,7 @@ using UnitsNet;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class SoftwareUpdateState : State
+    internal sealed class SoftwareUpdateState : State
     {
         public SoftwareUpdateState(BallShooterMachine ballShooterMachine) : base(ballShooterMachine)
         {

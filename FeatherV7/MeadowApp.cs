@@ -83,8 +83,15 @@ namespace FeatherV7
                 _rotaryEncoder.PressEnded += (s, e) => { };
             }
 
-            _distanceSensor?.Subscribe(distanceConsumer);
+            if(_distanceSensor is null)
+            {
+                Resolver.Log.Warn("Distance sensor not initialized");
+                _ballShooterMachine.SetState(_ballShooterMachine.ErrorState);
+            }
+
             _ballShooterMachine.Start();
+
+            _distanceSensor?.Subscribe(distanceConsumer);
 
             _isRunning = true;
 
@@ -149,11 +156,11 @@ namespace FeatherV7
 
                 _rotaryEncoder = new RotaryEncoderWithButton(Device.Pins.D11, Device.Pins.D10, Device.Pins.D09);
 
-                _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
-                _distanceSensor = new Vl53l0x(_i2cBus);
-
                 _bluetoothHandler = new BluetoothHandler(_onboardLed);
                 _bluetoothHandler.Initialize();
+
+                _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
+                _distanceSensor = new Vl53l0x(_i2cBus);
 
                 Resolver.Log.Info("Initialize devices done");
             }

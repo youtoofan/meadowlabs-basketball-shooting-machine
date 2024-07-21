@@ -7,7 +7,7 @@ using Meadow.Peripherals.Leds;
 namespace FeatherV7.Domain.Models
 {
 
-    internal class Led : RgbPwmLed, IShooterLed
+    internal sealed class Led : RgbPwmLed, IShooterLed
     {
         public Led(IPin redPwmPin, IPin greenPwmPin, IPin bluePwmPin, CommonType commonType = CommonType.CommonCathode)
             : base(redPwmPin, greenPwmPin, bluePwmPin, commonType)

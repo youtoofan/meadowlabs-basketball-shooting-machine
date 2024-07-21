@@ -7,7 +7,7 @@ using FeatherV7.Domain.Models;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class BootingState : State
+    internal sealed class BootingState : State
     {
         public override string Name => "Booting";
 

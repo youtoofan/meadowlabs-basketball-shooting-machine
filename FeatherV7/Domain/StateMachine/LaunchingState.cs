@@ -9,7 +9,7 @@ using FeatherV7.Domain.Models;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class LaunchingState : State
+    internal sealed class LaunchingState : State
     {
         public override string Name => "Launching";
         private bool _isLaunching = false;

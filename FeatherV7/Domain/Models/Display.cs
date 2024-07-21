@@ -11,7 +11,7 @@ using UnitsNet;
 namespace FeatherV7.Domain.Models
 {
 
-    internal class Display : DisplayScreen, IShooterDisplay
+    internal sealed class Display : DisplayScreen, IShooterDisplay
     {
         private Label clockLabel;
         private Label statusLabel;

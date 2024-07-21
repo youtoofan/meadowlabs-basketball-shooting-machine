@@ -11,7 +11,7 @@ using System;
 
 namespace FeatherV7.Domain.Models
 {
-    internal class BluetoothHandler: IBluetoothHandler
+    internal sealed class BluetoothHandler: IBluetoothHandler
     {
         public event EventHandler<bool> WifiEnabled = delegate { };
         public event EventHandler<bool> BleEnabled = delegate { };

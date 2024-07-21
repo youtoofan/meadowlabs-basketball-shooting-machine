@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace FeatherV7.Domain.Models
 {
 
-    internal class Trigger : IShooterTrigger
+    internal sealed class Trigger : IShooterTrigger
     {
         private IDigitalOutputPort OutputPort { get; }
 

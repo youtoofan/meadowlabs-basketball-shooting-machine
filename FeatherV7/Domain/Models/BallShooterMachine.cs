@@ -15,6 +15,7 @@ namespace FeatherV7.Domain.Models
         public readonly State BallState;
         public readonly State ReadyState;
         public readonly State SoftwareUpdateState;
+        public readonly State ErrorState;
 
         public readonly IShooterDisplay Graphics;
         public readonly IShooterSpeaker Speaker;
@@ -45,6 +46,7 @@ namespace FeatherV7.Domain.Models
             BallState = new BallState(this);
             ReadyState = new ReadyState(this);
             SoftwareUpdateState = new SoftwareUpdateState(this);
+            ErrorState = new ErrorState(this);
 
             _currentState = BootingState;
         }

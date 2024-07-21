@@ -6,7 +6,7 @@ using FeatherV7.Domain.Models;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class NoBallState : State
+    internal sealed class NoBallState : State
     {
         public override string Name => "No ball";
 

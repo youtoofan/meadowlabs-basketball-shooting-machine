@@ -6,7 +6,7 @@ using FeatherV7.Domain.Models;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class ReadyState : State
+    internal sealed class ReadyState : State
     {
         private int _distanceCounts = 0;
 

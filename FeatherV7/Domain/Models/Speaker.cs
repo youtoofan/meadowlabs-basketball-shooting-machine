@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace FeatherV7.Domain.Models
 {
 
-    internal class Speaker : PiezoSpeaker, IShooterSpeaker
+    internal sealed class Speaker : PiezoSpeaker, IShooterSpeaker
     {
         public Speaker(IPin pin) : base(pin)
         {

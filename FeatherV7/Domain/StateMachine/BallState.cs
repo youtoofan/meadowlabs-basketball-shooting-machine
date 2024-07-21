@@ -10,7 +10,7 @@ using FeatherV7.Domain.Models;
 
 namespace FeatherV7.Domain.StateMachine
 {
-    internal class BallState : State
+    internal sealed class BallState : State
     {
         public override string Name => "Ball detected";
         public BallState(BallShooterMachine ballShooterMachine)
