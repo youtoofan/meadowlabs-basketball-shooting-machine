@@ -38,6 +38,7 @@ namespace FeatherV7
         private bool _disposedValue;
         private DateTimeOffset _lastUpdate = DateTime.Now;
         private bool _isRunning;
+        private bool _isFaulty;
 
         public override Task Initialize()
         {
@@ -87,6 +88,7 @@ namespace FeatherV7
             {
                 Resolver.Log.Warn("Distance sensor not initialized");
                 _ballShooterMachine.SetState(_ballShooterMachine.ErrorState);
+                _isFaulty = true;
             }
 
             _ballShooterMachine.Start();
@@ -130,7 +132,7 @@ namespace FeatherV7
             Resolver.Log.Info("Initialize logging");
         }
 
-        private void InitDevices()
+        private async void InitDevices()
         {
             try
             {
@@ -160,6 +162,9 @@ namespace FeatherV7
                 _bluetoothHandler.Initialize();
 
                 _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
+
+                await Task.Delay(5000);
+
                 _distanceSensor = new Vl53l0x(_i2cBus);
 
                 Resolver.Log.Info("Initialize devices done");
