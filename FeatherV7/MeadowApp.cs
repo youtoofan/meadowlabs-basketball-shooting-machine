@@ -40,13 +40,12 @@ namespace FeatherV7
         private bool _isRunning;
         private bool _isFaulty;
 
-        public override Task Initialize()
+        public override async Task Initialize()
         {
             InitLogging();
 
-            InitDevices();
-
-            return base.Initialize();
+            await InitDevices();
+            await base.Initialize();
         }
 
         public override Task Run()
@@ -132,7 +131,7 @@ namespace FeatherV7
             Resolver.Log.Info("Initialize logging");
         }
 
-        private async void InitDevices()
+        private Task InitDevices()
         {
             try
             {
@@ -161,17 +160,18 @@ namespace FeatherV7
                 _bluetoothHandler = new BluetoothHandler(_onboardLed);
                 _bluetoothHandler.Initialize();
 
-                _i2cBus = Device.CreateI2cBus(I2cBusSpeed.Standard);
-
-                await Task.Delay(5000);
-
+                _i2cBus = Device.CreateI2cBus(I2cBusSpeed.FastPlus);
                 _distanceSensor = new Vl53l0x(_i2cBus);
 
                 Resolver.Log.Info("Initialize devices done");
+
+                return Task.CompletedTask;
             }
             catch (Exception e)
             {
                 Resolver.Log.Error(e, "Devices init failed.");
+
+                return Task.CompletedTask;
             }
         }
 
