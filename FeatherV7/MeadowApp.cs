@@ -137,8 +137,11 @@ namespace FeatherV7
             {
                 Resolver.Log.Info("Initialize devices");
 
+                var config = new SpiClockConfiguration(speed: new Meadow.Units.Frequency(12000), mode: SpiClockConfiguration.Mode.Mode3);
+                var spiBus = Device.CreateSpiBus(Device.Pins.SCK, Device.Pins.MOSI, Device.Pins.MISO, config);
+                
                 _st7789 = new St7789(
-                        spiBus: Device.CreateSpiBus(),
+                        spiBus:spiBus,
                         chipSelectPin: Device.Pins.D02,
                         dcPin: Device.Pins.D01,
                         resetPin: Device.Pins.D00,
