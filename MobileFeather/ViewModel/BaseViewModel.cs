@@ -8,6 +8,7 @@ using Plugin.BLE.Abstractions.Contracts;
 using Plugin.BLE.Abstractions.Exceptions;
 using Plugin.BLE.Abstractions.EventArgs;
 using CommonFeather;
+using Microsoft.Maui.ApplicationModel;
 
 namespace MobileFeather.ViewModel
 {

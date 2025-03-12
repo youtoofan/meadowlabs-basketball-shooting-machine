@@ -25,6 +25,7 @@ namespace FeatherV7
     public sealed class MeadowApp : App<F7FeatherV2>, IDisposable
     {
         private const int _waitIntervalInSeconds = 10;
+        private static readonly TimeSpan WaitInterval = TimeSpan.FromSeconds(_waitIntervalInSeconds);
         private Display _graphics;
         private BallShooterMachine _ballShooterMachine;
         private II2cBus _i2cBus;
@@ -36,14 +37,13 @@ namespace FeatherV7
         private BluetoothHandler _bluetoothHandler;
         private Vl53l0x _distanceSensor;
         private bool _disposedValue;
-        private DateTimeOffset _lastUpdate = DateTime.Now;
+        private DateTimeOffset _lastUpdate = DateTimeOffset.UtcNow;
         private bool _isRunning;
         private bool _isFaulty;
 
         public override async Task Initialize()
         {
             InitLogging();
-
             await InitDevices();
             await base.Initialize();
         }
@@ -57,7 +57,7 @@ namespace FeatherV7
             var distanceConsumer = Vl53l0x.CreateObserver(
                 handler: result =>
                 {
-                    _lastUpdate = DateTimeOffset.Now;
+                    _lastUpdate = DateTimeOffset.UtcNow;
                     _ballShooterMachine.UpdateDistanceToObject(Length.FromCentimeters(result.New.Centimeters));
                 },
                 filter: result =>
@@ -78,12 +78,13 @@ namespace FeatherV7
                     _relay.ShootAsync().SafeFireAndForget();
                 };
 
+                // Left intentionally blank as no action is specified
                 _rotaryEncoder.LongClicked += (s, e) => { };
                 _rotaryEncoder.Clicked += (s, e) => { };
                 _rotaryEncoder.PressEnded += (s, e) => { };
             }
 
-            if(_distanceSensor is null)
+            if (_distanceSensor is null)
             {
                 Resolver.Log.Warn("Distance sensor not initialized");
                 _ballShooterMachine.SetState(_ballShooterMachine.ErrorState);
@@ -91,26 +92,20 @@ namespace FeatherV7
             }
 
             _ballShooterMachine.Start();
-
             _distanceSensor?.Subscribe(distanceConsumer);
-
             _isRunning = true;
 
             _ = Task.Run(async () =>
             {
                 while (_isRunning)
                 {
-                    if (_lastUpdate.Add(TimeSpan.FromSeconds(_waitIntervalInSeconds)) < DateTimeOffset.Now)
+                    if (_lastUpdate.Add(WaitInterval) < DateTimeOffset.UtcNow)
                     {
-                        Resolver.Log.Warn("Distance sensor not updating");
-
+                        Resolver.Log.Warn("Distance sensor not updating. Restarting sensor updates.");
                         _distanceSensor?.StopUpdating();
                         _distanceSensor?.StartUpdating(Constants.Sensors.SENSOR_DISTANCE_READ_FREQUENCY);
-
-                        Resolver.Log.Warn("Request to start updating sensor");
                     }
-
-                    await Task.Delay(TimeSpan.FromSeconds(_waitIntervalInSeconds));
+                    await Task.Delay(WaitInterval);
                 }
             });
 
@@ -139,14 +134,14 @@ namespace FeatherV7
 
                 var config = new SpiClockConfiguration(speed: new Meadow.Units.Frequency(12000), mode: SpiClockConfiguration.Mode.Mode3);
                 var spiBus = Device.CreateSpiBus(Device.Pins.SCK, Device.Pins.MOSI, Device.Pins.MISO, config);
-                
+
                 _st7789 = new St7789(
-                        spiBus:spiBus,
-                        chipSelectPin: Device.Pins.D02,
-                        dcPin: Device.Pins.D01,
-                        resetPin: Device.Pins.D00,
-                        width: 240,
-                        height: 240);
+                    spiBus: spiBus,
+                    chipSelectPin: Device.Pins.D02,
+                    dcPin: Device.Pins.D01,
+                    resetPin: Device.Pins.D00,
+                    width: 240,
+                    height: 240);
 
                 _graphics = new Display(this, _st7789, RotationType._180Degrees);
 
@@ -167,13 +162,11 @@ namespace FeatherV7
                 _distanceSensor = new Vl53l0x(_i2cBus);
 
                 Resolver.Log.Info("Initialize devices done");
-
                 return Task.CompletedTask;
             }
             catch (Exception e)
             {
                 Resolver.Log.Error(e, "Devices init failed.");
-
                 return Task.CompletedTask;
             }
         }
@@ -183,7 +176,6 @@ namespace FeatherV7
         private void Dispose(bool disposing)
         {
             Resolver.Log.Info("Disposing...");
-
             _isRunning = false;
 
             if (!_disposedValue)
@@ -196,14 +188,12 @@ namespace FeatherV7
                     _i2cBus.Dispose();
                     _st7789.Dispose();
                 }
-
                 _disposedValue = true;
             }
         }
 
         public void Dispose()
         {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }

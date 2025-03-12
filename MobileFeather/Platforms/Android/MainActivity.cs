@@ -3,6 +3,8 @@ using Android.App;
 using Android.Content.PM;
 using Android.OS;
 using AndroidX.Core.App;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui;
 
 namespace MobileFeather
 {
