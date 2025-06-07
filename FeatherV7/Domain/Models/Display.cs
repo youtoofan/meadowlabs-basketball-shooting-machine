@@ -39,7 +39,7 @@ namespace FeatherV7.Domain.Models
                 centerY: Height / 2,
                 radius: Height / 2)
             {
-                ForeColor = colors[3],
+                ForegroundColor = colors[3],
                 IsFilled = true
             });
 
